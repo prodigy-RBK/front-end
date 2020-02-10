@@ -19,12 +19,17 @@ import router from "./router";
 import MaterialKit from "./plugins/material-kit";
 import store from "./store";
 
+import VueAnalytics from "vue-analytics";
+
 Vue.config.productionTip = false;
 
 Vue.use(MaterialKit);
 const NavbarStore = {
   showNavbar: false
 };
+Vue.use(VueAnalytics, {
+  id: "UA-157025691-1"
+});
 
 Vue.mixin({
   data() {
