@@ -21,8 +21,10 @@ import store from "./store";
 
 import VueAnalytics from "vue-analytics";
 
+import axios from "axios";
 Vue.config.productionTip = false;
 
+Vue.use(require("vue-moment"));
 Vue.use(MaterialKit);
 const NavbarStore = {
   showNavbar: false
@@ -31,6 +33,20 @@ Vue.use(VueAnalytics, {
   id: "UA-157025691-1"
 });
 
+axios.defaults.headers.common["x-token"] = localStorage.getItem("x-token");
+axios.defaults.headers.common["x-refresh-token"] = localStorage.getItem("x-refresh-token");
+axios.interceptors.response.use(
+  function(response) {
+    if (response.headers["x-token"]) {
+      localStorage.setItem("x-token", response.headers["x-token"]);
+      localStorage.setItem("x-refresh-token", response.headers["x-refresh-token"]);
+    }
+    return response;
+  },
+  function(error) {
+    return Promise.reject(error);
+  }
+);
 Vue.mixin({
   data() {
     return {

@@ -4,7 +4,9 @@
       class="page-header header-filter header-small"
       filter-color="rose"
       parallax-active="true"
-      :style="{ 'background-image': `url(${require('../assets/img/examples/clark-street-merc.jpg')})` }"
+      :style="{
+        'background-image': `url(${require('../assets/img/examples/clark-street-merc.jpg')})`
+      }"
     >
       <div class="container">
         <div class="row">
@@ -39,9 +41,9 @@
                   <h4 class="card-title">
                     <a href="#pablo">Gucci</a>
                   </h4>
-                  <p
-                    class="card-description"
-                  >The structured shoulders and sleek detailing ensure a sharp silhouette. Team it with a silk pocket square and leather loafers.</p>
+                  <p class="card-description">
+                    The structured shoulders and sleek detailing ensure a sharp silhouette. Team it with a silk pocket square and leather loafers.
+                  </p>
                 </div>
                 <div class="card-footer">
                   <div class="price-container">
@@ -75,37 +77,10 @@
                 <!-- Whoever is doing the front, display multiple of 3 products -->
                 <div class="col-md-12">
                   <div class="row">
-                    <div class="col-md-4" v-for="product in pageProducts" :key="product._id">
-                      <div
-                        class="card card-product card-plain no-shadow"
-                        data-colored-shadow="false"
-                      >
-                        <div
-                          class="card-header card-header-image"
-                          v-on:click="sendtrigger(product._id)"
-                        >
-                          <a :href="'/products/' + product._id">
-                            <img :src="product.images[0]" alt="..." />
-                          </a>
-                        </div>
-                        <div class="card-body">
-                          <a :href="'/products/' + product._id">
-                            <h4 class="card-title">{{ product.title }}</h4>
-                          </a>
-                          <p class="description">{{ product.description }}</p>
-                        </div>
-                        <div class="card-footer justify-content-between">
-                          <div class="price-container">
-                            <span class="price">€ {{ product.price }}</span>
-                          </div>
-                          <md-button class="md-rose md-just-icon md-simple">
-                            <md-icon>favorite</md-icon>
-                          </md-button>
-                          <md-button class="md-rose md-just-icon md-simple">
-                            <md-icon>favorite_border</md-icon>
-                          </md-button>
-                        </div>
-                      </div>
+                    <div class="col-md-4 myClass" v-for="product in pageProducts" :key="product._id">
+                      <product-card :product="product" :inWishlist="$store.state.wishlist.includes(product._id)"
+                        v-on:click="sendtrigger(product._id)"></product-card>
+
                       <!-- end card -->
                     </div>
                   </div>
@@ -113,13 +88,7 @@
                 <div class="col-md-12">
                   <div class="row">
                     <div class="col-md-3 ml-auto mr-auto">
-                      <pagination
-                        class="pagination-info"
-                        v-model="infoPagination"
-                        with-text
-                        :value="1"
-                        :page-count="pageCount"
-                      ></pagination>
+                      <pagination class="pagination-info myPagination" v-model="infoPagination" with-text :value="1" :page-count="pageCount"></pagination>
                     </div>
                   </div>
                 </div>
@@ -129,115 +98,38 @@
           <br />
           <h2 class="section-title">News in fashion</h2>
           <div class="row">
-            <div class="col-md-4">
+            <div class="col-md-4" v-for="article in popularArticles1" :key="article.title">
               <div
                 class="card card-background"
                 :style="{
-                  'background-image': `url(${require('../assets/img/examples/color1.jpg')})`
+                  'background-image': 'url(' + article.urlToImage + ')'
                 }"
               >
                 <div class="card-body">
-                  <h6 class="card-category text-info">Productivy Apps</h6>
-                  <a href="#pablo">
-                    <h3 class="card-title">The best trends in fashion 2017</h3>
+                  <h6 class="card-category text-info">{{ article.author }}</h6>
+                  <a :href="article.url" target="_blanck">
+                    <h3 class="card-title">{{ article.title }}</h3>
                   </a>
-                  <p class="card-description">
-                    Don't be scared of the truth because we need to restart the human foundation in truth And I love you like Kanye loves Kanye I love Rick
-                    Owens’ bed design but the back is...
-                  </p>
-                  <md-button href="#pablo" class="md-white md-round">
-                    <i class="material-icons">subject</i> Read
-                  </md-button>
+                  <p class="card-description">{{ article.description }}</p>
+                  <md-button :href="article.url" class="md-white md-round" target="_blanck"> <i class="material-icons">subject</i> Read </md-button>
                 </div>
               </div>
               <!-- end card -->
             </div>
-            <div class="col-md-4">
+            <div class="col-md-6" v-for="article in popularArticles2" :key="article.title">
               <div
                 class="card card-background"
                 :style="{
-                  'background-image': `url(${require('../assets/img/examples/color3.jpg')})`
+                  'background-image': 'url(' + article.urlToImage + ')'
                 }"
               >
                 <div class="card-body">
-                  <h6 class="card-category text-info">Fashion News</h6>
-                  <h3 class="card-title">Kanye joins the Yeezy team at Adidas</h3>
-                  <p class="card-description">
-                    Don't be scared of the truth because we need to restart the human foundation in truth And I love you like Kanye loves Kanye I love Rick
-                    Owens’ bed design but the back is...
-                  </p>
-                  <md-button href="#pablo" class="md-white md-round">
-                    <i class="material-icons">subject</i> Read
-                  </md-button>
-                </div>
-              </div>
-              <!-- end card -->
-            </div>
-            <div class="col-md-4">
-              <div
-                class="card card-background"
-                :style="{
-                  'background-image': `url(${require('../assets/img/examples/color2.jpg')})`
-                }"
-              >
-                <div class="card-body">
-                  <h6 class="card-category text-info">Productivy Apps</h6>
-                  <a href="#pablo">
-                    <h3 class="card-title">Learn how to use the new colors of 2017</h3>
+                  <h6 class="card-category text-info">{{ article.author }}</h6>
+                  <a :href="article.url" target="_blanck">
+                    <h3 class="card-title">{{ article.title }}</h3>
                   </a>
-                  <p class="card-description">
-                    Don't be scared of the truth because we need to restart the human foundation in truth And I love you like Kanye loves Kanye I love Rick
-                    Owens’ bed design but the back is...
-                  </p>
-                  <md-button href="#pablo" class="md-white md-round">
-                    <i class="material-icons">subject</i> Read
-                  </md-button>
-                </div>
-              </div>
-              <!-- end card -->
-            </div>
-            <div class="col-md-6">
-              <div
-                class="card card-background"
-                :style="{
-                  'background-image': `url(${require('../assets/img/dg3.jpg')})`
-                }"
-              >
-                <div class="card-body">
-                  <h6 class="card-category text-info">Tutorials</h6>
-                  <a href="#pablo">
-                    <h3 class="card-title">Trending colors of 2017</h3>
-                  </a>
-                  <p class="card-description">
-                    Don't be scared of the truth because we need to restart the human foundation in truth And I love you like Kanye loves Kanye I love Rick
-                    Owens’ bed design but the back is...
-                  </p>
-                  <md-button href="#pablo" class="md-white md-round">
-                    <i class="material-icons">subject</i> Read
-                  </md-button>
-                </div>
-              </div>
-              <!-- end card -->
-            </div>
-            <div class="col-md-6">
-              <div
-                class="card card-background"
-                :style="{
-                  'background-image': `url(${require('../assets/img/dg1.jpg')})`
-                }"
-              >
-                <div class="card-body">
-                  <h6 class="card-category text-info">Productivy Style</h6>
-                  <a href="#pablo">
-                    <h3 class="card-title">Fashion &amp; Style 2017</h3>
-                  </a>
-                  <p class="card-description">
-                    Don't be scared of the truth because we need to restart the human foundation in truth And I love you like Kanye loves Kanye I love Rick
-                    Owens’ bed design but the back is...
-                  </p>
-                  <md-button href="#pablo" class="md-white md-round">
-                    <i class="material-icons">subject</i> Read
-                  </md-button>
+                  <p class="card-description">{{ article.description }}</p>
+                  <md-button :href="article.url" class="md-white md-round" target="_blanck"> <i class="material-icons">subject</i> Read </md-button>
                 </div>
               </div>
               <!-- end card -->
@@ -252,60 +144,19 @@
       <div class="container">
         <h2 class="section-title">Latest Articles</h2>
         <div class="row">
-          <div class="col-md-4">
+          <div class="col-md-4" v-for="article in latestArticles" :key="article.title">
             <div class="card card-blog">
               <div class="card-header card-header-image">
-                <a href="#pablo">
-                  <img src="../assets/img/dg6.jpg" alt />
+                <a :href="article.url" target="_blanck">
+                  <img :src="article.urlToImage" alt />
                 </a>
               </div>
               <div class="card-body">
-                <h6 class="card-category text-rose">Trends</h6>
+                <h6 class="card-category text-rose">{{ article.author }}</h6>
                 <h4 class="card-title">
-                  <a href="#pablo">Learn how to wear your scarf with a floral print shirt</a>
+                  <a :href="article.url" target="_blanck">{{ article.title }}</a>
                 </h4>
-                <p class="card-description">
-                  Don't be scared of the truth because we need to restart the human foundation in truth And I love you like Kanye loves Kanye I love Rick Owens’
-                  bed design but the back is...
-                </p>
-              </div>
-            </div>
-          </div>
-          <div class="col-md-4">
-            <div class="card card-blog">
-              <div class="card-header card-header-image">
-                <a href="#pablo">
-                  <img src="../assets/img/dg10.jpg" alt />
-                </a>
-              </div>
-              <div class="card-body">
-                <h6 class="card-category text-rose">Fashion week</h6>
-                <h4 class="card-title">
-                  <a href="#pablo">Katy Perry was wearing a Dolce &amp; Gabanna arc dress</a>
-                </h4>
-                <p class="card-description">
-                  Don't be scared of the truth because we need to restart the human foundation in truth And I love you like Kanye loves Kanye I love Rick Owens’
-                  bed design but the back is...
-                </p>
-              </div>
-            </div>
-          </div>
-          <div class="col-md-4">
-            <div class="card card-blog">
-              <div class="card-header card-header-image">
-                <a href="#pablo">
-                  <img src="../assets/img/dg9.jpg" alt />
-                </a>
-              </div>
-              <div class="card-body">
-                <h6 class="card-category text-rose">Fashion week</h6>
-                <h4 class="card-title">
-                  <a href="#pablo">Check the latest fashion events and which are the trends</a>
-                </h4>
-                <p class="card-description">
-                  Don't be scared of the truth because we need to restart the human foundation in truth And I love you like Kanye loves Kanye I love Rick Owens’
-                  bed design but the back is...
-                </p>
+                <p class="card-description">{{ article.description }}</p>
               </div>
             </div>
           </div>
@@ -325,9 +176,8 @@
           <div class="col-md-6 ml-auto mr-auto">
             <div class="text-center">
               <h3 class="title">Subscribe to our Newsletter</h3>
-              <p
-                class="description"
-              >Join our newsletter and get news in your inbox every week! We hate spam too, so no worries about this.</p>
+
+              <p class="description">Join our newsletter and get news in your inbox every week! We hate spam too, so no worries about this.</p>
             </div>
             <div class="card card-raised card-form-horizontal">
               <div class="card-body">
@@ -358,8 +208,8 @@
 </template>
 <script>
 import { FilterSection } from "@/components";
+import { ProductCard } from "../components";
 import { mapMutations, mapGetters } from "vuex";
-import { Pagination } from "@/components";
 import axios from "axios";
 import Vue from "vue";
 import VueAnalytics from "vue-analytics";
@@ -394,7 +244,11 @@ export default {
       pageProducts: null,
       email: null,
       password: null,
-      leafShow: false
+      leafShow: false,
+      latestArticles: [],
+      popularArticles: [],
+      popularArticles1: [],
+      popularArticles2: []
     };
   },
   methods: {
@@ -412,22 +266,20 @@ export default {
       let min = max - 9;
       this.pageProducts = this.getDisplayedProducts().slice(min, max);
     },
-    sendtrigger: async function(productid) {
-      try {
-        let data = await axios.get(
-          `http://127.0.0.1:3000/api/user/verifytoken`
-        );
-        console.log(data);
-      } catch (err) {
-        console.log(err);
-      }
-
+    async sendtrigger(productid) {
       this.$ga.event({
         eventCategory: productid,
         eventAction: "action",
         eventLabel: "label",
         eventValue: 123
       });
+    },
+    async fetchArticles() {
+      let { data } = await axios.get("http://127.0.0.1:3000/api/articles");
+      this.popularArticles = data.popularArticles.articles;
+      this.latestArticles = data.latestArticles.articles;
+      this.popularArticles1 = this.popularArticles.slice(0, 3);
+      this.popularArticles2 = this.popularArticles.slice(3);
     }
   },
   computed: {
@@ -446,11 +298,10 @@ export default {
     }
   },
   async beforeMount() {
-    let { data } = await axios.get(
-      `http://127.0.0.1:3000/api/products/allproducts`
-    );
+    let { data } = await axios.get(`http://127.0.0.1:3000/api/products/allproducts`);
     this.ADD_PRODUCTS(data);
     this.DISPLAY_PRODUCTS(data);
+    this.fetchArticles();
   },
   watch: {
     infoPagination: async function() {
@@ -459,12 +310,13 @@ export default {
     displayedProducts: function() {
       this.pageProducts = this.getDisplayedProducts().slice(0, 9);
       this.pageCount = Math.ceil(this.getDisplayedProducts().length / 9);
+      this.infoPagination = 1;
     }
   }
 };
 </script>
 
-<style>
+<style scoped>
 @import "../assets/css/buttons.css";
 .form-control {
   display: block;
@@ -478,8 +330,7 @@ export default {
   border: 1px solid #d2d2d2;
   border-radius: 0;
   box-shadow: none;
-  -webkit-transition: border-color 0.15s ease-in-out,
-    box-shadow 0.15s ease-in-out;
+  -webkit-transition: border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
   transition: border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
 }
 .form-control::-ms-expand {
@@ -853,18 +704,10 @@ export default {
   .card-group > .card:not(:first-child):not(:last-child):not(:only-child) {
     border-radius: 0;
   }
-  .card-group
-    > .card:not(:first-child):not(:last-child):not(:only-child)
-    .card-img-top,
-  .card-group
-    > .card:not(:first-child):not(:last-child):not(:only-child)
-    .card-img-bottom,
-  .card-group
-    > .card:not(:first-child):not(:last-child):not(:only-child)
-    .card-header,
-  .card-group
-    > .card:not(:first-child):not(:last-child):not(:only-child)
-    .card-footer {
+  .card-group > .card:not(:first-child):not(:last-child):not(:only-child) .card-img-top,
+  .card-group > .card:not(:first-child):not(:last-child):not(:only-child) .card-img-bottom,
+  .card-group > .card:not(:first-child):not(:last-child):not(:only-child) .card-header,
+  .card-group > .card:not(:first-child):not(:last-child):not(:only-child) .card-footer {
     border-radius: 0;
   }
 }
@@ -1051,8 +894,7 @@ fieldset[disabled] .form-group.is-focused .form-check .form-check-label {
   width: 0;
   color: #fff;
   height: 0;
-  box-shadow: 0 0 0 0, 0 0 0 0, 0 0 0 0, 0 0 0 0, 0 0 0 0, 0 0 0 0,
-    0 0 0 0 inset;
+  box-shadow: 0 0 0 0, 0 0 0 0, 0 0 0 0, 0 0 0 0, 0 0 0 0, 0 0 0 0, 0 0 0 0 inset;
   -webkit-animation: checkbox-off 0.3s forwards;
   animation: checkbox-off 0.3s forwards;
 }
@@ -1064,8 +906,7 @@ fieldset[disabled] .form-group.is-focused .form-check .form-check-label {
 }
 .form-check .form-check-input:checked ~ .form-check-sign .check:before {
   color: #ffffff;
-  box-shadow: 0 0 0 10px, 10px -10px 0 10px, 32px 0 0 20px, 0px 32px 0 20px,
-    -5px 5px 0 10px, 20px -12px 0 11px;
+  box-shadow: 0 0 0 10px, 10px -10px 0 10px, 32px 0 0 20px, 0px 32px 0 20px, -5px 5px 0 10px, 20px -12px 0 11px;
   -webkit-animation: checkbox-on 0.3s forwards;
   animation: checkbox-on 0.3s forwards;
 }
@@ -1258,22 +1099,15 @@ form {
 
 .form-control,
 .is-focused .form-control {
-  background-image: linear-gradient(
-      to top,
-      #9c27b0 2px,
-      rgba(156, 39, 176, 0) 2px
-    ),
-    linear-gradient(to top, #d2d2d2 1px, rgba(210, 210, 210, 0) 1px);
+  background-image: linear-gradient(to top, #9c27b0 2px, rgba(156, 39, 176, 0) 2px), linear-gradient(to top, #d2d2d2 1px, rgba(210, 210, 210, 0) 1px);
 }
 
 .bmd-form-group {
   position: relative;
   padding-top: 27px;
 }
-.bmd-form-group:not(.has-success):not(.has-danger)
-  [class^="bmd-label"].bmd-label-floating,
-.bmd-form-group:not(.has-success):not(.has-danger)
-  [class*=" bmd-label"].bmd-label-floating {
+.bmd-form-group:not(.has-success):not(.has-danger) [class^="bmd-label"].bmd-label-floating,
+.bmd-form-group:not(.has-success):not(.has-danger) [class*=" bmd-label"].bmd-label-floating {
   color: #aaaaaa;
 }
 .bmd-form-group [class^="bmd-label"],
@@ -1387,8 +1221,7 @@ form {
 .bmd-form-group.is-focused .bmd-form-group .form-control.form-control-danger {
   padding-right: 0;
   background-repeat: no-repeat, no-repeat;
-  background-position: center bottom, center calc(100% - 1px),
-    center right 0.46875rem;
+  background-position: center bottom, center calc(100% - 1px), center right 0.46875rem;
 }
 .bmd-form-group .form-control.form-control-success:focus,
 .bmd-form-group.is-focused .bmd-form-group .form-control.form-control-success,
@@ -1456,36 +1289,23 @@ form {
 }
 .bmd-form-group.bmd-form-group-sm .form-control.form-control-success,
 .bmd-form-group.bmd-form-group-sm .form-control.form-control-success:focus,
-.bmd-form-group.is-focused
-  .bmd-form-group.bmd-form-group-sm
-  .form-control.form-control-success,
+.bmd-form-group.is-focused .bmd-form-group.bmd-form-group-sm .form-control.form-control-success,
 .bmd-form-group.bmd-form-group-sm .form-control.form-control-warning,
 .bmd-form-group.bmd-form-group-sm .form-control.form-control-warning:focus,
-.bmd-form-group.is-focused
-  .bmd-form-group.bmd-form-group-sm
-  .form-control.form-control-warning,
+.bmd-form-group.is-focused .bmd-form-group.bmd-form-group-sm .form-control.form-control-warning,
 .bmd-form-group.bmd-form-group-sm .form-control.form-control-danger,
 .bmd-form-group.bmd-form-group-sm .form-control.form-control-danger:focus,
-.bmd-form-group.is-focused
-  .bmd-form-group.bmd-form-group-sm
-  .form-control.form-control-danger {
+.bmd-form-group.is-focused .bmd-form-group.bmd-form-group-sm .form-control.form-control-danger {
   padding-right: 0;
   background-repeat: no-repeat, no-repeat;
-  background-position: center bottom, center calc(100% - 1px),
-    center right 0.34375rem;
+  background-position: center bottom, center calc(100% - 1px), center right 0.34375rem;
 }
 .bmd-form-group.bmd-form-group-sm .form-control.form-control-success:focus,
-.bmd-form-group.is-focused
-  .bmd-form-group.bmd-form-group-sm
-  .form-control.form-control-success,
+.bmd-form-group.is-focused .bmd-form-group.bmd-form-group-sm .form-control.form-control-success,
 .bmd-form-group.bmd-form-group-sm .form-control.form-control-warning:focus,
-.bmd-form-group.is-focused
-  .bmd-form-group.bmd-form-group-sm
-  .form-control.form-control-warning,
+.bmd-form-group.is-focused .bmd-form-group.bmd-form-group-sm .form-control.form-control-warning,
 .bmd-form-group.bmd-form-group-sm .form-control.form-control-danger:focus,
-.bmd-form-group.is-focused
-  .bmd-form-group.bmd-form-group-sm
-  .form-control.form-control-danger {
+.bmd-form-group.is-focused .bmd-form-group.bmd-form-group-sm .form-control.form-control-danger {
   background-size: 100% 100%, 100% 100%, 0.6875rem 0.6875rem;
 }
 .bmd-form-group.bmd-form-group-lg input::-webkit-input-placeholder {
@@ -1546,36 +1366,23 @@ form {
 }
 .bmd-form-group.bmd-form-group-lg .form-control.form-control-success,
 .bmd-form-group.bmd-form-group-lg .form-control.form-control-success:focus,
-.bmd-form-group.is-focused
-  .bmd-form-group.bmd-form-group-lg
-  .form-control.form-control-success,
+.bmd-form-group.is-focused .bmd-form-group.bmd-form-group-lg .form-control.form-control-success,
 .bmd-form-group.bmd-form-group-lg .form-control.form-control-warning,
 .bmd-form-group.bmd-form-group-lg .form-control.form-control-warning:focus,
-.bmd-form-group.is-focused
-  .bmd-form-group.bmd-form-group-lg
-  .form-control.form-control-warning,
+.bmd-form-group.is-focused .bmd-form-group.bmd-form-group-lg .form-control.form-control-warning,
 .bmd-form-group.bmd-form-group-lg .form-control.form-control-danger,
 .bmd-form-group.bmd-form-group-lg .form-control.form-control-danger:focus,
-.bmd-form-group.is-focused
-  .bmd-form-group.bmd-form-group-lg
-  .form-control.form-control-danger {
+.bmd-form-group.is-focused .bmd-form-group.bmd-form-group-lg .form-control.form-control-danger {
   padding-right: 0;
   background-repeat: no-repeat, no-repeat;
-  background-position: center bottom, center calc(100% - 1px),
-    center right 0.59375rem;
+  background-position: center bottom, center calc(100% - 1px), center right 0.59375rem;
 }
 .bmd-form-group.bmd-form-group-lg .form-control.form-control-success:focus,
-.bmd-form-group.is-focused
-  .bmd-form-group.bmd-form-group-lg
-  .form-control.form-control-success,
+.bmd-form-group.is-focused .bmd-form-group.bmd-form-group-lg .form-control.form-control-success,
 .bmd-form-group.bmd-form-group-lg .form-control.form-control-warning:focus,
-.bmd-form-group.is-focused
-  .bmd-form-group.bmd-form-group-lg
-  .form-control.form-control-warning,
+.bmd-form-group.is-focused .bmd-form-group.bmd-form-group-lg .form-control.form-control-warning,
 .bmd-form-group.bmd-form-group-lg .form-control.form-control-danger:focus,
-.bmd-form-group.is-focused
-  .bmd-form-group.bmd-form-group-lg
-  .form-control.form-control-danger {
+.bmd-form-group.is-focused .bmd-form-group.bmd-form-group-lg .form-control.form-control-danger {
   background-size: 100% 100%, 100% 100%, 1.1875rem 1.1875rem;
 }
 
@@ -1671,8 +1478,7 @@ label {
 }
 .page-header .iframe-container iframe {
   width: 100%;
-  box-shadow: 0 16px 38px -12px rgba(0, 0, 0, 0.56),
-    0 4px 25px 0px rgba(0, 0, 0, 0.12), 0 8px 10px -5px rgba(0, 0, 0, 0.2);
+  box-shadow: 0 16px 38px -12px rgba(0, 0, 0, 0.56), 0 4px 25px 0px rgba(0, 0, 0, 0.12), 0 8px 10px -5px rgba(0, 0, 0, 0.2);
 }
 
 .header-filter {
@@ -1845,8 +1651,7 @@ b {
   color: rgba(0, 0, 0, 0.87);
   background: #fff;
   width: 100%;
-  box-shadow: 0 2px 2px 0 rgba(0, 0, 0, 0.14), 0 3px 1px -2px rgba(0, 0, 0, 0.2),
-    0 1px 5px 0 rgba(0, 0, 0, 0.12);
+  box-shadow: 0 2px 2px 0 rgba(0, 0, 0, 0.14), 0 3px 1px -2px rgba(0, 0, 0, 0.2), 0 1px 5px 0 rgba(0, 0, 0, 0.12);
 }
 .card .card-category:not([class*="text-"]) {
   color: #999999;
@@ -1905,8 +1710,7 @@ b {
   font-size: 18px;
 }
 .card.bmd-card-raised {
-  box-shadow: 0 8px 10px 1px rgba(0, 0, 0, 0.14),
-    0 3px 14px 2px rgba(0, 0, 0, 0.12), 0 5px 5px -3px rgba(0, 0, 0, 0.2);
+  box-shadow: 0 8px 10px 1px rgba(0, 0, 0, 0.14), 0 3px 14px 2px rgba(0, 0, 0, 0.12), 0 5px 5px -3px rgba(0, 0, 0, 0.2);
 }
 @media (min-width: 992px) {
   .card.bmd-card-flat {
@@ -1926,8 +1730,7 @@ b {
   color: #fff;
 }
 .card .card-header:not([class*="header-"]) {
-  box-shadow: 0 16px 38px -12px rgba(0, 0, 0, 0.56),
-    0 4px 25px 0px rgba(0, 0, 0, 0.12), 0 8px 10px -5px rgba(0, 0, 0, 0.2);
+  box-shadow: 0 16px 38px -12px rgba(0, 0, 0, 0.56), 0 4px 25px 0px rgba(0, 0, 0, 0.12), 0 8px 10px -5px rgba(0, 0, 0, 0.2);
 }
 .card .card-header .nav-tabs {
   padding: 0;
@@ -1948,8 +1751,7 @@ b {
   width: 100%;
   border-radius: 6px;
   pointer-events: none;
-  box-shadow: 0 5px 15px -8px rgba(0, 0, 0, 0.24),
-    0 8px 10px -5px rgba(0, 0, 0, 0.2);
+  box-shadow: 0 5px 15px -8px rgba(0, 0, 0, 0.24), 0 8px 10px -5px rgba(0, 0, 0, 0.2);
 }
 .card .card-header.card-header-image .card-title {
   position: absolute;
@@ -1978,8 +1780,7 @@ b {
   box-shadow: none;
 }
 .card .card-header.card-header-image.no-shadow.shadow-normal {
-  box-shadow: 0 16px 38px -12px rgba(0, 0, 0, 0.56),
-    0 4px 25px 0px rgba(0, 0, 0, 0.12), 0 8px 10px -5px rgba(0, 0, 0, 0.2);
+  box-shadow: 0 16px 38px -12px rgba(0, 0, 0, 0.56), 0 4px 25px 0px rgba(0, 0, 0, 0.12), 0 8px 10px -5px rgba(0, 0, 0, 0.2);
 }
 .card .card-header.card-header-image.no-shadow .colored-shadow {
   display: none !important;
@@ -2021,28 +1822,22 @@ b {
   background: linear-gradient(60deg, #ec407a, #c2185b);
 }
 .card .card-header-primary {
-  box-shadow: 0 5px 20px 0px rgba(0, 0, 0, 0.2),
-    0 13px 24px -11px rgba(156, 39, 176, 0.6);
+  box-shadow: 0 5px 20px 0px rgba(0, 0, 0, 0.2), 0 13px 24px -11px rgba(156, 39, 176, 0.6);
 }
 .card .card-header-danger {
-  box-shadow: 0 5px 20px 0px rgba(0, 0, 0, 0.2),
-    0 13px 24px -11px rgba(244, 67, 54, 0.6);
+  box-shadow: 0 5px 20px 0px rgba(0, 0, 0, 0.2), 0 13px 24px -11px rgba(244, 67, 54, 0.6);
 }
 .card .card-header-rose {
-  box-shadow: 0 5px 20px 0px rgba(0, 0, 0, 0.2),
-    0 13px 24px -11px rgba(233, 30, 99, 0.6);
+  box-shadow: 0 5px 20px 0px rgba(0, 0, 0, 0.2), 0 13px 24px -11px rgba(233, 30, 99, 0.6);
 }
 .card .card-header-warning {
-  box-shadow: 0 5px 20px 0px rgba(0, 0, 0, 0.2),
-    0 13px 24px -11px rgba(255, 152, 0, 0.6);
+  box-shadow: 0 5px 20px 0px rgba(0, 0, 0, 0.2), 0 13px 24px -11px rgba(255, 152, 0, 0.6);
 }
 .card .card-header-info {
-  box-shadow: 0 5px 20px 0px rgba(0, 0, 0, 0.2),
-    0 13px 24px -11px rgba(0, 188, 212, 0.6);
+  box-shadow: 0 5px 20px 0px rgba(0, 0, 0, 0.2), 0 13px 24px -11px rgba(0, 188, 212, 0.6);
 }
 .card .card-header-success {
-  box-shadow: 0 5px 20px 0px rgba(0, 0, 0, 0.2),
-    0 13px 24px -11px rgba(76, 175, 80, 0.6);
+  box-shadow: 0 5px 20px 0px rgba(0, 0, 0, 0.2), 0 13px 24px -11px rgba(76, 175, 80, 0.6);
 }
 .card [class*="header-"],
 .card[class*="bg-"] {
@@ -2431,8 +2226,7 @@ html:not([dir="rtl"]) .noUi-horizontal .noUi-origin {
   transition: all 0.2s ease-out;
   border: 1px solid #9c27b0;
   background: #fff;
-  box-shadow: 0 2px 2px 0 rgba(0, 0, 0, 0.14),
-    0 3px 1px -2px rgba(0, 0, 0, 0.12), 0 1px 5px 0 rgba(0, 0, 0, 0.2);
+  box-shadow: 0 2px 2px 0 rgba(0, 0, 0, 0.14), 0 3px 1px -2px rgba(0, 0, 0, 0.12), 0 1px 5px 0 rgba(0, 0, 0, 0.2);
 }
 
 .noUi-target {
@@ -2470,8 +2264,7 @@ html:not([dir="rtl"]) .noUi-horizontal .noUi-origin {
   transition: all 0.2s ease-out;
   border: 1px solid;
   background: #fff;
-  box-shadow: 0 2px 2px 0 rgba(0, 0, 0, 0.14),
-    0 3px 1px -2px rgba(0, 0, 0, 0.12), 0 1px 5px 0 rgba(0, 0, 0, 0.2);
+  box-shadow: 0 2px 2px 0 rgba(0, 0, 0, 0.14), 0 3px 1px -2px rgba(0, 0, 0, 0.12), 0 1px 5px 0 rgba(0, 0, 0, 0.2);
 }
 
 .noUi-active {
@@ -2563,12 +2356,7 @@ html:not([dir="rtl"]) .noUi-horizontal .noUi-origin {
   margin-bottom: 0;
 }
 
-.ecommerce-page
-  .card-refine
-  .checkbox
-  input[type="checkbox"]:checked
-  + .checkbox-material
-  .check {
+.ecommerce-page .card-refine .checkbox input[type="checkbox"]:checked + .checkbox-material .check {
   background: #e91e63;
 }
 
@@ -2617,5 +2405,13 @@ html:not([dir="rtl"]) .noUi-horizontal .noUi-origin {
 .subscribe-line.subscribe-line-image .container {
   z-index: 2;
   position: relative;
+}
+.myClass {
+  margin-top: 20px;
+  margin-bottom: 20px;
+}
+
+.myPagination {
+  margin-top: 50px;
 }
 </style>

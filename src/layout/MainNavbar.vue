@@ -152,10 +152,13 @@
               <md-list-item href="/wishlist">
                 <i class="material-icons">favorite</i>
               </md-list-item>
-              <md-badge class="md-primary" md-position="top" md-content="12">
+              <md-badge
+                class="md-primary"
+                md-position="top"
+                :md-content="this.$store.state.cart.length"
+              >
                 <md-list-item href="/shoppingCart">
                   <i class="material-icons">shopping_cart</i>
-                  <p>0</p>
                 </md-list-item>
               </md-badge>
             </md-list>
@@ -212,15 +215,8 @@ export default {
       extraNavClasses: "",
       toggledClass: false,
       selectedProduct: "",
-      products: []
+      products: this.$store.state.products
     };
-  },
-  async beforeMount() {
-    let { data } = await axios.get(
-      `http://127.0.0.1:3000/api/products/allproducts`
-    );
-    this.products = data;
-    // this.products = this.$store.state.products;
   },
   methods: {
     bodyClick() {
@@ -268,6 +264,18 @@ export default {
       }
     }
   },
+  async beforeMount() {
+    console.log("nav", this.$store.state.cart);
+
+    try {
+      await axios.get("http://localhost:3000/api/user/verifytoken");
+      this.$store.commit("UPDATE_LOGIN", true);
+      this.$store.dispatch("UPDATE_USER_WISHLIST");
+    } catch (err) {
+      console.log(err);
+      this.$store.commit("UPDATE_LOGIN", false);
+    }
+  },
   mounted() {
     document.addEventListener("scroll", this.scrollListener);
   },
@@ -276,7 +284,7 @@ export default {
   }
 };
 </script>
-<style>
+<style scoped>
 .imageDiv {
   padding-right: 10px;
   width: 100px !important;

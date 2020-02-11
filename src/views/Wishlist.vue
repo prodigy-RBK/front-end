@@ -1,6 +1,11 @@
 <template>
   <div class="wrapper">
-    <parallax class="page-header header-filter header-small" filter-color="rose" parallax-active="true" :style="headerStyle">
+    <parallax
+      class="page-header header-filter header-small"
+      filter-color="rose"
+      parallax-active="true"
+      :style="headerStyle"
+    >
       <div class="md-layout">
         <div class="md-layout-item">
           <div class="image-wrapper index-page">
@@ -20,30 +25,7 @@
             <div class="col-md-12">
               <div class="row">
                 <div class="col-md-3" v-for="product in wishlist" :key="product._id">
-                  <div class="card card-product card-plain no-shadow" data-colored-shadow="false">
-                    <div class="card-header card-header-image">
-                      <a :href="'/products/' + product._id">
-                        <img :src="product.images[0]" alt="..." />
-                      </a>
-                    </div>
-                    <div class="card-body">
-                      <a :href="'/products/' + product._id">
-                        <h4 class="card-title">{{ product.title }}</h4>
-                      </a>
-                      <p class="description">{{ product.description }}</p>
-                    </div>
-                    <div class="card-footer justify-content-between">
-                      <div class="price-container">
-                        <span class="price">€ {{ product.price }}</span>
-                      </div>
-                      <md-button class="md-rose md-just-icon md-simple">
-                        <md-icon>favorite</md-icon>
-                      </md-button>
-                      <md-button class="md-rose md-just-icon md-simple">
-                        <md-icon>favorite_border</md-icon>
-                      </md-button>
-                    </div>
-                  </div>
+                  <product-card :product="product" :inWishlist="inWishlist"></product-card>
                   <!-- end card -->
                 </div>
               </div>
@@ -56,6 +38,8 @@
 </template>
 <script>
 import axios from "axios";
+import { mapGetters } from "vuex";
+
 export default {
   name: "shopping-cart",
   bodyClass: "product-page",
@@ -79,16 +63,27 @@ export default {
   },
   data() {
     return {
-      wishlist: []
+      wishlist: [],
+      inWishlist: false
     };
   },
   methods: {
+    ...mapGetters(["getWishlist"]),
     leafActive() {
       if (window.innerWidth < 768) {
         this.leafShow = false;
       } else {
         this.leafShow = true;
       }
+    },
+    async getWishlist() {
+      let { data } = await axios.post(
+        `http://127.0.0.1:3000/api/products/allproducts`,
+        {
+          products: this.$store.state.wishlist
+        }
+      );
+      this.wishlist = data;
     }
   },
   computed: {
@@ -104,13 +99,17 @@ export default {
     }
   },
   async beforeMount() {
-    let { data } = await axios.get(`http://127.0.0.1:3000/api/products/allproducts`); // FIX THIS: create a route for the wishlist by user
-    this.wishlist = data;
+    this.getWishlist();
+    this.inWishlist = true;
+    this.$store.watch(
+      state => state.wishlist,
+      newWishlist => this.getWishlist()
+    );
   }
 };
 </script>
 
-<style>
+<style scoped>
 .card {
   font-size: 0.875rem;
 }
@@ -526,7 +525,8 @@ a {
 }
 .page-header .iframe-container iframe {
   width: 100%;
-  box-shadow: 0 16px 38px -12px rgba(0, 0, 0, 0.56), 0 4px 25px 0px rgba(0, 0, 0, 0.12), 0 8px 10px -5px rgba(0, 0, 0, 0.2);
+  box-shadow: 0 16px 38px -12px rgba(0, 0, 0, 0.56),
+    0 4px 25px 0px rgba(0, 0, 0, 0.12), 0 8px 10px -5px rgba(0, 0, 0, 0.2);
 }
 
 .header-filter {
@@ -818,7 +818,8 @@ h2.title {
   color: rgba(0, 0, 0, 0.87);
   background: #fff;
   width: 100%;
-  box-shadow: 0 2px 2px 0 rgba(0, 0, 0, 0.14), 0 3px 1px -2px rgba(0, 0, 0, 0.2), 0 1px 5px 0 rgba(0, 0, 0, 0.12);
+  box-shadow: 0 2px 2px 0 rgba(0, 0, 0, 0.14), 0 3px 1px -2px rgba(0, 0, 0, 0.2),
+    0 1px 5px 0 rgba(0, 0, 0, 0.12);
 }
 .card .card-category:not([class*="text-"]) {
   color: #999999;
@@ -878,7 +879,8 @@ h2.title {
 }
 
 .card.bmd-card-raised {
-  box-shadow: 0 8px 10px 1px rgba(0, 0, 0, 0.14), 0 3px 14px 2px rgba(0, 0, 0, 0.12), 0 5px 5px -3px rgba(0, 0, 0, 0.2);
+  box-shadow: 0 8px 10px 1px rgba(0, 0, 0, 0.14),
+    0 3px 14px 2px rgba(0, 0, 0, 0.12), 0 5px 5px -3px rgba(0, 0, 0, 0.2);
 }
 
 @media (min-width: 992px) {
@@ -902,7 +904,8 @@ h2.title {
 }
 
 .card .card-header:not([class*="header-"]) {
-  box-shadow: 0 16px 38px -12px rgba(0, 0, 0, 0.56), 0 4px 25px 0px rgba(0, 0, 0, 0.12), 0 8px 10px -5px rgba(0, 0, 0, 0.2);
+  box-shadow: 0 16px 38px -12px rgba(0, 0, 0, 0.56),
+    0 4px 25px 0px rgba(0, 0, 0, 0.12), 0 8px 10px -5px rgba(0, 0, 0, 0.2);
 }
 
 .card .card-header .nav-tabs {
@@ -927,7 +930,8 @@ h2.title {
   width: 100%;
   border-radius: 6px;
   pointer-events: none;
-  box-shadow: 0 5px 15px -8px rgba(0, 0, 0, 0.24), 0 8px 10px -5px rgba(0, 0, 0, 0.2);
+  box-shadow: 0 5px 15px -8px rgba(0, 0, 0, 0.24),
+    0 8px 10px -5px rgba(0, 0, 0, 0.2);
 }
 
 .card .card-header.card-header-image .card-title {
@@ -957,7 +961,8 @@ h2.title {
   box-shadow: none;
 }
 .card .card-header.card-header-image.no-shadow.shadow-normal {
-  box-shadow: 0 16px 38px -12px rgba(0, 0, 0, 0.56), 0 4px 25px 0px rgba(0, 0, 0, 0.12), 0 8px 10px -5px rgba(0, 0, 0, 0.2);
+  box-shadow: 0 16px 38px -12px rgba(0, 0, 0, 0.56),
+    0 4px 25px 0px rgba(0, 0, 0, 0.12), 0 8px 10px -5px rgba(0, 0, 0, 0.2);
 }
 .card .card-header.card-header-image.no-shadow .colored-shadow {
   display: none !important;
@@ -999,22 +1004,28 @@ h2.title {
   background: linear-gradient(60deg, #ec407a, #c2185b);
 }
 .card .card-header-primary {
-  box-shadow: 0 5px 20px 0px rgba(0, 0, 0, 0.2), 0 13px 24px -11px rgba(156, 39, 176, 0.6);
+  box-shadow: 0 5px 20px 0px rgba(0, 0, 0, 0.2),
+    0 13px 24px -11px rgba(156, 39, 176, 0.6);
 }
 .card .card-header-danger {
-  box-shadow: 0 5px 20px 0px rgba(0, 0, 0, 0.2), 0 13px 24px -11px rgba(244, 67, 54, 0.6);
+  box-shadow: 0 5px 20px 0px rgba(0, 0, 0, 0.2),
+    0 13px 24px -11px rgba(244, 67, 54, 0.6);
 }
 .card .card-header-rose {
-  box-shadow: 0 5px 20px 0px rgba(0, 0, 0, 0.2), 0 13px 24px -11px rgba(233, 30, 99, 0.6);
+  box-shadow: 0 5px 20px 0px rgba(0, 0, 0, 0.2),
+    0 13px 24px -11px rgba(233, 30, 99, 0.6);
 }
 .card .card-header-warning {
-  box-shadow: 0 5px 20px 0px rgba(0, 0, 0, 0.2), 0 13px 24px -11px rgba(255, 152, 0, 0.6);
+  box-shadow: 0 5px 20px 0px rgba(0, 0, 0, 0.2),
+    0 13px 24px -11px rgba(255, 152, 0, 0.6);
 }
 .card .card-header-info {
-  box-shadow: 0 5px 20px 0px rgba(0, 0, 0, 0.2), 0 13px 24px -11px rgba(0, 188, 212, 0.6);
+  box-shadow: 0 5px 20px 0px rgba(0, 0, 0, 0.2),
+    0 13px 24px -11px rgba(0, 188, 212, 0.6);
 }
 .card .card-header-success {
-  box-shadow: 0 5px 20px 0px rgba(0, 0, 0, 0.2), 0 13px 24px -11px rgba(76, 175, 80, 0.6);
+  box-shadow: 0 5px 20px 0px rgba(0, 0, 0, 0.2),
+    0 13px 24px -11px rgba(76, 175, 80, 0.6);
 }
 .card [class*="header-"],
 .card[class*="bg-"] {
