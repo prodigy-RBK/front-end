@@ -17,7 +17,7 @@
       </div>
     </parallax>
     <div class="main main-raised-cart">
-      <div class="container">
+      <div class="container" style="max-width: 1600px;">
         <div class="card card-plain">
           <div class="card-body">
             <h3 class="card-title">Shopping Cart</h3>
@@ -367,7 +367,6 @@ export default {
       this.classicModal = false;
       let products = [];
       let orderPrice = 0;
-
       this.products.forEach(product => {
         products.push({
           productId: product.productId._id,
@@ -378,34 +377,38 @@ export default {
         });
         orderPrice += product.selectedQuantity * product.productId.price;
       });
-      StripeCheckout.configure({
-        key: this.publicKey,
-        locale: "auto",
-        token: async function(token) {
-          let { data } = await axios.post(
-            "https://prodigy-rbk.herokuapp.com/api/stripe/purchase",
-            {
-              token: token.id,
-              amount: orderPrice * 100
-            }
-          );
-          console.log(data);
-          axios
-            .post("https://prodigy-rbk.herokuapp.com/api/orders/order", {
-              products: products,
-              orderPrice: orderPrice,
-              deliveryInfo: that.deliveryInfo
-            })
-            .then(response => {
-              console.log(response);
-
-              that.resetStates();
-              that.successNotif = true;
-            });
-        }
-      }).open({
-        amount: orderPrice * 100
-      });
+      if (this.deliveryInfo.payment_method === "Credit Card") {
+        StripeCheckout.configure({
+          key: this.publicKey,
+          locale: "auto",
+          token: async function(token) {
+            let { data } = await axios.post(
+              "https://prodigy-rbk.herokuapp.com/api/stripe/purchase",
+              {
+                token: token.id,
+                amount: orderPrice * 100
+              }
+            );
+            this.postOrder(products, orderPrice, that.deliveryInfo);
+          }
+        }).open({
+          amount: orderPrice * 100
+        });
+      } else {
+        this.postOrder(products, orderPrice, that.deliveryInfo);
+      }
+    },
+    postOrder(products, orderPrice, deliveryInfo) {
+      axios
+        .post("https://prodigy-rbk.herokuapp.com/api/orders/order", {
+          products,
+          orderPrice,
+          deliveryInfo
+        })
+        .then(response => {
+          this.resetStates();
+          this.successNotif = true;
+        });
     },
     deleteProduct(index) {
       this.REMOVE_FROM_CART(index);
@@ -445,7 +448,9 @@ export default {
         this.products[index].selectedColor = product.selectedColor;
         this.products[index].selectedQuantity = product.selectedQuantity;
         promises.push(
-          axios.get(`https://prodigy-rbk.herokuapp.com/api/products/${productId}`)
+          axios.get(
+            `https://prodigy-rbk.herokuapp.com/api/products/${productId}`
+          )
         );
       });
 
@@ -479,9 +484,9 @@ export default {
     let stripeScript = document.createElement("script");
     stripeScript.setAttribute("src", "https://checkout.stripe.com/checkout.js");
     document.head.appendChild(stripeScript);
-    console.log(this.$store.state.user.loggedIn);
     this.test();
   },
+  mounted() {},
   updated() {
     this.cartPrice = this.products.reduce((acc, product) => {
       return acc + product.productId.price * product.selectedQuantity;

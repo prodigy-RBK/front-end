@@ -18,8 +18,7 @@
       :onSuccess="onSuccess"
       :onFailure="onFailure"
       style="content: Login with Google !important;"
-    >
-    </GoogleLogin>
+    ></GoogleLogin>
     <p slot="description" class="description">Or Be Classical</p>
     <md-field class="md-form-group" slot="inputs">
       <md-icon>face</md-icon>
@@ -65,13 +64,14 @@ export default {
       email: null,
       password: null,
       params: {
-        client_id: "533129668624-0iiemq738iusdp6tdq5791thhiks11fq.apps.googleusercontent.com"
+        client_id:
+          "533129668624-0iiemq738iusdp6tdq5791thhiks11fq.apps.googleusercontent.com"
       },
       logoutButton: true,
       // only needed if you want to render the button with the google ui
       renderParams: {
-        width: 250,
-        height: 50,
+        width: "300%",
+        height: 35,
         longtitle: true
       }
     };
@@ -100,7 +100,10 @@ export default {
           token: googleUser.getAuthResponse().id_token
         })
         .then(response => {
-          localStorage.setItem("x-token", googleUser.getAuthResponse().id_token);
+          localStorage.setItem(
+            "x-token",
+            googleUser.getAuthResponse().id_token
+          );
           router.push({ name: "index" });
         });
     },
@@ -113,14 +116,11 @@ export default {
           password: this.registerPassword
         })
         .then(function(response) {
-          console.log(response);
           if (response.data.status === "success") {
             router.push({ name: "confirmation" });
           }
         })
-        .catch(function(error) {
-          console.log(error);
-        });
+        .catch(function(error) {});
     }
   }
 };
