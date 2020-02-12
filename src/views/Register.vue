@@ -266,9 +266,7 @@ export default {
           password: this.password
         })
         .then(response => {
-          console.log(response);
           if (response.data.status === "success") {
-            console.log(this);
             this.confirmationNotif = true;
             window.setTimeout(() => {
               router.push({ name: "index" });
@@ -277,9 +275,7 @@ export default {
             this.emailExistsNotif = true;
           }
         })
-        .catch(function(error) {
-          console.log(error);
-        });
+        .catch(function(error) {});
     },
     getValidationClass(fieldName) {
       const field = this.$v[fieldName];
