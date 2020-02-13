@@ -101,11 +101,11 @@ export default {
     async sendtrigger(productid) {
       try {
         let { data } = await axios.get(`http://localhost:3000/api/user/verifytoken`);
-        console.log(data.id);
+
         this.$ga.event({
           eventCategory: productid,
           eventAction: "clicked product",
-          eventLabel: data.id
+          eventLabel: data.iduser
         });
       } catch (err) {
         console.log(err);
