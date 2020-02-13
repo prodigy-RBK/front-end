@@ -27,35 +27,43 @@
       <div class="section">
         <div class="container">
           <!-- Section: Latest Offers -->
-          <h2 class="section-title">Latest Offers</h2>
+          <h2 class="section-title">Recommended For You</h2>
           <div class="row">
-            <!-- Repeat after this line -->
-            <div class="col-md-4">
+            <div
+              class="col-md-4"
+              v-for="product in recommendedproduct.slice(0,3)"
+              :key="product._id"
+            >
               <div class="card card-product card-plain">
                 <div class="card-header card-header-image">
                   <a href="#pablo">
-                    <img src="../assets/img/examples/gucci.jpg" alt />
+                    <img :src="product.images[0]" />
                   </a>
                 </div>
                 <div class="card-body text-center">
                   <h4 class="card-title">
-                    <a href="#pablo">Gucci</a>
+                    <a href="#pablo">{{ product.title }}</a>
                   </h4>
-                  <p class="card-description">
-                    The structured shoulders and sleek detailing ensure a sharp silhouette. Team it with a silk pocket square and leather loafers.
-                  </p>
+                  <!-- <p class="card-description">{{ product.description }}</p> -->
                 </div>
                 <div class="card-footer">
                   <div class="price-container">
-                    <span class="price price-old">€1,430</span>
-                    <span class="price price-new">€743</span>
+                    <span class="price price-new">€ {{ product.price }}</span>
                   </div>
-                  <div class="stats ml-auto">
-                    <md-button class="md-rose md-just-icon md-simple">
-                      <md-icon>favorite</md-icon>
-                    </md-button>
-                    <md-button class="md-rose md-just-icon md-simple">
+                  <div>
+                    <md-button
+                      class="md-rose md-just-icon md-simple"
+                      @click="addToWishlist"
+                      v-show="!updatedInWishlist"
+                    >
                       <md-icon>favorite_border</md-icon>
+                    </md-button>
+                    <md-button
+                      class="md-rose md-just-icon md-simple"
+                      @click="removeFromWishlist"
+                      v-show="updatedInWishlist"
+                    >
+                      <md-icon>favorite</md-icon>
                     </md-button>
                   </div>
                 </div>
@@ -77,9 +85,15 @@
                 <!-- Whoever is doing the front, display multiple of 3 products -->
                 <div class="col-md-12">
                   <div class="row">
-                    <div class="col-md-4 myClass" v-for="product in pageProducts" :key="product._id">
-                      <product-card :product="product" :inWishlist="$store.state.wishlist.includes(product._id)"
-                        v-on:click="sendtrigger(product._id)"></product-card>
+                    <div
+                      class="col-md-4 myClass"
+                      v-for="product in pageProducts"
+                      :key="product._id"
+                    >
+                      <product-card
+                        :product="product"
+                        :inWishlist="$store.state.wishlist.includes(product._id)"
+                      ></product-card>
 
                       <!-- end card -->
                     </div>
@@ -88,7 +102,13 @@
                 <div class="col-md-12">
                   <div class="row">
                     <div class="col-md-3 ml-auto mr-auto">
-                      <pagination class="pagination-info myPagination" v-model="infoPagination" with-text :value="1" :page-count="pageCount"></pagination>
+                      <pagination
+                        class="pagination-info myPagination"
+                        v-model="infoPagination"
+                        with-text
+                        :value="1"
+                        :page-count="pageCount"
+                      ></pagination>
                     </div>
                   </div>
                 </div>
@@ -111,7 +131,9 @@
                     <h3 class="card-title">{{ article.title }}</h3>
                   </a>
                   <p class="card-description">{{ article.description }}</p>
-                  <md-button :href="article.url" class="md-white md-round" target="_blanck"> <i class="material-icons">subject</i> Read </md-button>
+                  <md-button :href="article.url" class="md-white md-round" target="_blanck">
+                    <i class="material-icons">subject</i> Read
+                  </md-button>
                 </div>
               </div>
               <!-- end card -->
@@ -129,7 +151,9 @@
                     <h3 class="card-title">{{ article.title }}</h3>
                   </a>
                   <p class="card-description">{{ article.description }}</p>
-                  <md-button :href="article.url" class="md-white md-round" target="_blanck"> <i class="material-icons">subject</i> Read </md-button>
+                  <md-button :href="article.url" class="md-white md-round" target="_blanck">
+                    <i class="material-icons">subject</i> Read
+                  </md-button>
                 </div>
               </div>
               <!-- end card -->
@@ -177,7 +201,9 @@
             <div class="text-center">
               <h3 class="title">Subscribe to our Newsletter</h3>
 
-              <p class="description">Join our newsletter and get news in your inbox every week! We hate spam too, so no worries about this.</p>
+              <p
+                class="description"
+              >Join our newsletter and get news in your inbox every week! We hate spam too, so no worries about this.</p>
             </div>
             <div class="card card-raised card-form-horizontal">
               <div class="card-body">
@@ -248,9 +274,12 @@ export default {
       latestArticles: [],
       popularArticles: [],
       popularArticles1: [],
-      popularArticles2: []
+      popularArticles2: [],
+      recommendedproduct: [],
+      updatedInWishlist: this.inWishlist
     };
   },
+
   methods: {
     ...mapMutations(["ADD_PRODUCTS", "DISPLAY_PRODUCTS"]),
     ...mapGetters(["auth", "getProducts", "getDisplayedProducts"]),
@@ -266,20 +295,28 @@ export default {
       let min = max - 9;
       this.pageProducts = this.getDisplayedProducts().slice(min, max);
     },
-    async sendtrigger(productid) {
-      this.$ga.event({
-        eventCategory: productid,
-        eventAction: "action",
-        eventLabel: "label",
-        eventValue: 123
-      });
-    },
+
     async fetchArticles() {
-      let { data } = await axios.get("https://prodigy-rbk.herokuapp.com/api/articles");
+      let { data } = await axios.get("http://localhost:3000/api/articles");
       this.popularArticles = data.popularArticles.articles;
       this.latestArticles = data.latestArticles.articles;
       this.popularArticles1 = this.popularArticles.slice(0, 3);
       this.popularArticles2 = this.popularArticles.slice(3);
+    },
+    async getrecommendedproducts() {
+      let { data } = await axios.get(
+        "http://localhost:3000/api/recommendedproducts/getrecommprods"
+      );
+      this.recommendedproduct = data;
+      console.log(data);
+    },
+    async addToWishlist() {
+      this.$store.dispatch("ADD_TO_WISHLIST", this.product._id);
+      this.updatedInWishlist = true;
+    },
+    async removeFromWishlist() {
+      this.$store.dispatch("REMOVE_FROM_WISHLIST", this.product._id);
+      this.updatedInWishlist = false;
     }
   },
   computed: {
@@ -298,10 +335,13 @@ export default {
     }
   },
   async beforeMount() {
-    let { data } = await axios.get(`https://prodigy-rbk.herokuapp.com/api/products/allproducts`);
+    let { data } = await axios.get(
+      `http://localhost:3000/api/products/allproducts`
+    );
     this.ADD_PRODUCTS(data);
     this.DISPLAY_PRODUCTS(data);
     this.fetchArticles();
+    this.getrecommendedproducts();
   },
   watch: {
     infoPagination: async function() {
@@ -330,7 +370,8 @@ export default {
   border: 1px solid #d2d2d2;
   border-radius: 0;
   box-shadow: none;
-  -webkit-transition: border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
+  -webkit-transition: border-color 0.15s ease-in-out,
+    box-shadow 0.15s ease-in-out;
   transition: border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
 }
 .form-control::-ms-expand {
@@ -704,10 +745,18 @@ export default {
   .card-group > .card:not(:first-child):not(:last-child):not(:only-child) {
     border-radius: 0;
   }
-  .card-group > .card:not(:first-child):not(:last-child):not(:only-child) .card-img-top,
-  .card-group > .card:not(:first-child):not(:last-child):not(:only-child) .card-img-bottom,
-  .card-group > .card:not(:first-child):not(:last-child):not(:only-child) .card-header,
-  .card-group > .card:not(:first-child):not(:last-child):not(:only-child) .card-footer {
+  .card-group
+    > .card:not(:first-child):not(:last-child):not(:only-child)
+    .card-img-top,
+  .card-group
+    > .card:not(:first-child):not(:last-child):not(:only-child)
+    .card-img-bottom,
+  .card-group
+    > .card:not(:first-child):not(:last-child):not(:only-child)
+    .card-header,
+  .card-group
+    > .card:not(:first-child):not(:last-child):not(:only-child)
+    .card-footer {
     border-radius: 0;
   }
 }
@@ -894,7 +943,8 @@ fieldset[disabled] .form-group.is-focused .form-check .form-check-label {
   width: 0;
   color: #fff;
   height: 0;
-  box-shadow: 0 0 0 0, 0 0 0 0, 0 0 0 0, 0 0 0 0, 0 0 0 0, 0 0 0 0, 0 0 0 0 inset;
+  box-shadow: 0 0 0 0, 0 0 0 0, 0 0 0 0, 0 0 0 0, 0 0 0 0, 0 0 0 0,
+    0 0 0 0 inset;
   -webkit-animation: checkbox-off 0.3s forwards;
   animation: checkbox-off 0.3s forwards;
 }
@@ -906,7 +956,8 @@ fieldset[disabled] .form-group.is-focused .form-check .form-check-label {
 }
 .form-check .form-check-input:checked ~ .form-check-sign .check:before {
   color: #ffffff;
-  box-shadow: 0 0 0 10px, 10px -10px 0 10px, 32px 0 0 20px, 0px 32px 0 20px, -5px 5px 0 10px, 20px -12px 0 11px;
+  box-shadow: 0 0 0 10px, 10px -10px 0 10px, 32px 0 0 20px, 0px 32px 0 20px,
+    -5px 5px 0 10px, 20px -12px 0 11px;
   -webkit-animation: checkbox-on 0.3s forwards;
   animation: checkbox-on 0.3s forwards;
 }
@@ -1099,15 +1150,22 @@ form {
 
 .form-control,
 .is-focused .form-control {
-  background-image: linear-gradient(to top, #9c27b0 2px, rgba(156, 39, 176, 0) 2px), linear-gradient(to top, #d2d2d2 1px, rgba(210, 210, 210, 0) 1px);
+  background-image: linear-gradient(
+      to top,
+      #9c27b0 2px,
+      rgba(156, 39, 176, 0) 2px
+    ),
+    linear-gradient(to top, #d2d2d2 1px, rgba(210, 210, 210, 0) 1px);
 }
 
 .bmd-form-group {
   position: relative;
   padding-top: 27px;
 }
-.bmd-form-group:not(.has-success):not(.has-danger) [class^="bmd-label"].bmd-label-floating,
-.bmd-form-group:not(.has-success):not(.has-danger) [class*=" bmd-label"].bmd-label-floating {
+.bmd-form-group:not(.has-success):not(.has-danger)
+  [class^="bmd-label"].bmd-label-floating,
+.bmd-form-group:not(.has-success):not(.has-danger)
+  [class*=" bmd-label"].bmd-label-floating {
   color: #aaaaaa;
 }
 .bmd-form-group [class^="bmd-label"],
@@ -1221,7 +1279,8 @@ form {
 .bmd-form-group.is-focused .bmd-form-group .form-control.form-control-danger {
   padding-right: 0;
   background-repeat: no-repeat, no-repeat;
-  background-position: center bottom, center calc(100% - 1px), center right 0.46875rem;
+  background-position: center bottom, center calc(100% - 1px),
+    center right 0.46875rem;
 }
 .bmd-form-group .form-control.form-control-success:focus,
 .bmd-form-group.is-focused .bmd-form-group .form-control.form-control-success,
@@ -1289,23 +1348,36 @@ form {
 }
 .bmd-form-group.bmd-form-group-sm .form-control.form-control-success,
 .bmd-form-group.bmd-form-group-sm .form-control.form-control-success:focus,
-.bmd-form-group.is-focused .bmd-form-group.bmd-form-group-sm .form-control.form-control-success,
+.bmd-form-group.is-focused
+  .bmd-form-group.bmd-form-group-sm
+  .form-control.form-control-success,
 .bmd-form-group.bmd-form-group-sm .form-control.form-control-warning,
 .bmd-form-group.bmd-form-group-sm .form-control.form-control-warning:focus,
-.bmd-form-group.is-focused .bmd-form-group.bmd-form-group-sm .form-control.form-control-warning,
+.bmd-form-group.is-focused
+  .bmd-form-group.bmd-form-group-sm
+  .form-control.form-control-warning,
 .bmd-form-group.bmd-form-group-sm .form-control.form-control-danger,
 .bmd-form-group.bmd-form-group-sm .form-control.form-control-danger:focus,
-.bmd-form-group.is-focused .bmd-form-group.bmd-form-group-sm .form-control.form-control-danger {
+.bmd-form-group.is-focused
+  .bmd-form-group.bmd-form-group-sm
+  .form-control.form-control-danger {
   padding-right: 0;
   background-repeat: no-repeat, no-repeat;
-  background-position: center bottom, center calc(100% - 1px), center right 0.34375rem;
+  background-position: center bottom, center calc(100% - 1px),
+    center right 0.34375rem;
 }
 .bmd-form-group.bmd-form-group-sm .form-control.form-control-success:focus,
-.bmd-form-group.is-focused .bmd-form-group.bmd-form-group-sm .form-control.form-control-success,
+.bmd-form-group.is-focused
+  .bmd-form-group.bmd-form-group-sm
+  .form-control.form-control-success,
 .bmd-form-group.bmd-form-group-sm .form-control.form-control-warning:focus,
-.bmd-form-group.is-focused .bmd-form-group.bmd-form-group-sm .form-control.form-control-warning,
+.bmd-form-group.is-focused
+  .bmd-form-group.bmd-form-group-sm
+  .form-control.form-control-warning,
 .bmd-form-group.bmd-form-group-sm .form-control.form-control-danger:focus,
-.bmd-form-group.is-focused .bmd-form-group.bmd-form-group-sm .form-control.form-control-danger {
+.bmd-form-group.is-focused
+  .bmd-form-group.bmd-form-group-sm
+  .form-control.form-control-danger {
   background-size: 100% 100%, 100% 100%, 0.6875rem 0.6875rem;
 }
 .bmd-form-group.bmd-form-group-lg input::-webkit-input-placeholder {
@@ -1366,23 +1438,36 @@ form {
 }
 .bmd-form-group.bmd-form-group-lg .form-control.form-control-success,
 .bmd-form-group.bmd-form-group-lg .form-control.form-control-success:focus,
-.bmd-form-group.is-focused .bmd-form-group.bmd-form-group-lg .form-control.form-control-success,
+.bmd-form-group.is-focused
+  .bmd-form-group.bmd-form-group-lg
+  .form-control.form-control-success,
 .bmd-form-group.bmd-form-group-lg .form-control.form-control-warning,
 .bmd-form-group.bmd-form-group-lg .form-control.form-control-warning:focus,
-.bmd-form-group.is-focused .bmd-form-group.bmd-form-group-lg .form-control.form-control-warning,
+.bmd-form-group.is-focused
+  .bmd-form-group.bmd-form-group-lg
+  .form-control.form-control-warning,
 .bmd-form-group.bmd-form-group-lg .form-control.form-control-danger,
 .bmd-form-group.bmd-form-group-lg .form-control.form-control-danger:focus,
-.bmd-form-group.is-focused .bmd-form-group.bmd-form-group-lg .form-control.form-control-danger {
+.bmd-form-group.is-focused
+  .bmd-form-group.bmd-form-group-lg
+  .form-control.form-control-danger {
   padding-right: 0;
   background-repeat: no-repeat, no-repeat;
-  background-position: center bottom, center calc(100% - 1px), center right 0.59375rem;
+  background-position: center bottom, center calc(100% - 1px),
+    center right 0.59375rem;
 }
 .bmd-form-group.bmd-form-group-lg .form-control.form-control-success:focus,
-.bmd-form-group.is-focused .bmd-form-group.bmd-form-group-lg .form-control.form-control-success,
+.bmd-form-group.is-focused
+  .bmd-form-group.bmd-form-group-lg
+  .form-control.form-control-success,
 .bmd-form-group.bmd-form-group-lg .form-control.form-control-warning:focus,
-.bmd-form-group.is-focused .bmd-form-group.bmd-form-group-lg .form-control.form-control-warning,
+.bmd-form-group.is-focused
+  .bmd-form-group.bmd-form-group-lg
+  .form-control.form-control-warning,
 .bmd-form-group.bmd-form-group-lg .form-control.form-control-danger:focus,
-.bmd-form-group.is-focused .bmd-form-group.bmd-form-group-lg .form-control.form-control-danger {
+.bmd-form-group.is-focused
+  .bmd-form-group.bmd-form-group-lg
+  .form-control.form-control-danger {
   background-size: 100% 100%, 100% 100%, 1.1875rem 1.1875rem;
 }
 
@@ -1478,7 +1563,8 @@ label {
 }
 .page-header .iframe-container iframe {
   width: 100%;
-  box-shadow: 0 16px 38px -12px rgba(0, 0, 0, 0.56), 0 4px 25px 0px rgba(0, 0, 0, 0.12), 0 8px 10px -5px rgba(0, 0, 0, 0.2);
+  box-shadow: 0 16px 38px -12px rgba(0, 0, 0, 0.56),
+    0 4px 25px 0px rgba(0, 0, 0, 0.12), 0 8px 10px -5px rgba(0, 0, 0, 0.2);
 }
 
 .header-filter {
@@ -1651,7 +1737,8 @@ b {
   color: rgba(0, 0, 0, 0.87);
   background: #fff;
   width: 100%;
-  box-shadow: 0 2px 2px 0 rgba(0, 0, 0, 0.14), 0 3px 1px -2px rgba(0, 0, 0, 0.2), 0 1px 5px 0 rgba(0, 0, 0, 0.12);
+  box-shadow: 0 2px 2px 0 rgba(0, 0, 0, 0.14), 0 3px 1px -2px rgba(0, 0, 0, 0.2),
+    0 1px 5px 0 rgba(0, 0, 0, 0.12);
 }
 .card .card-category:not([class*="text-"]) {
   color: #999999;
@@ -1710,7 +1797,8 @@ b {
   font-size: 18px;
 }
 .card.bmd-card-raised {
-  box-shadow: 0 8px 10px 1px rgba(0, 0, 0, 0.14), 0 3px 14px 2px rgba(0, 0, 0, 0.12), 0 5px 5px -3px rgba(0, 0, 0, 0.2);
+  box-shadow: 0 8px 10px 1px rgba(0, 0, 0, 0.14),
+    0 3px 14px 2px rgba(0, 0, 0, 0.12), 0 5px 5px -3px rgba(0, 0, 0, 0.2);
 }
 @media (min-width: 992px) {
   .card.bmd-card-flat {
@@ -1730,7 +1818,8 @@ b {
   color: #fff;
 }
 .card .card-header:not([class*="header-"]) {
-  box-shadow: 0 16px 38px -12px rgba(0, 0, 0, 0.56), 0 4px 25px 0px rgba(0, 0, 0, 0.12), 0 8px 10px -5px rgba(0, 0, 0, 0.2);
+  box-shadow: 0 16px 38px -12px rgba(0, 0, 0, 0.56),
+    0 4px 25px 0px rgba(0, 0, 0, 0.12), 0 8px 10px -5px rgba(0, 0, 0, 0.2);
 }
 .card .card-header .nav-tabs {
   padding: 0;
@@ -1751,7 +1840,8 @@ b {
   width: 100%;
   border-radius: 6px;
   pointer-events: none;
-  box-shadow: 0 5px 15px -8px rgba(0, 0, 0, 0.24), 0 8px 10px -5px rgba(0, 0, 0, 0.2);
+  box-shadow: 0 5px 15px -8px rgba(0, 0, 0, 0.24),
+    0 8px 10px -5px rgba(0, 0, 0, 0.2);
 }
 .card .card-header.card-header-image .card-title {
   position: absolute;
@@ -1780,7 +1870,8 @@ b {
   box-shadow: none;
 }
 .card .card-header.card-header-image.no-shadow.shadow-normal {
-  box-shadow: 0 16px 38px -12px rgba(0, 0, 0, 0.56), 0 4px 25px 0px rgba(0, 0, 0, 0.12), 0 8px 10px -5px rgba(0, 0, 0, 0.2);
+  box-shadow: 0 16px 38px -12px rgba(0, 0, 0, 0.56),
+    0 4px 25px 0px rgba(0, 0, 0, 0.12), 0 8px 10px -5px rgba(0, 0, 0, 0.2);
 }
 .card .card-header.card-header-image.no-shadow .colored-shadow {
   display: none !important;
@@ -1822,22 +1913,28 @@ b {
   background: linear-gradient(60deg, #ec407a, #c2185b);
 }
 .card .card-header-primary {
-  box-shadow: 0 5px 20px 0px rgba(0, 0, 0, 0.2), 0 13px 24px -11px rgba(156, 39, 176, 0.6);
+  box-shadow: 0 5px 20px 0px rgba(0, 0, 0, 0.2),
+    0 13px 24px -11px rgba(156, 39, 176, 0.6);
 }
 .card .card-header-danger {
-  box-shadow: 0 5px 20px 0px rgba(0, 0, 0, 0.2), 0 13px 24px -11px rgba(244, 67, 54, 0.6);
+  box-shadow: 0 5px 20px 0px rgba(0, 0, 0, 0.2),
+    0 13px 24px -11px rgba(244, 67, 54, 0.6);
 }
 .card .card-header-rose {
-  box-shadow: 0 5px 20px 0px rgba(0, 0, 0, 0.2), 0 13px 24px -11px rgba(233, 30, 99, 0.6);
+  box-shadow: 0 5px 20px 0px rgba(0, 0, 0, 0.2),
+    0 13px 24px -11px rgba(233, 30, 99, 0.6);
 }
 .card .card-header-warning {
-  box-shadow: 0 5px 20px 0px rgba(0, 0, 0, 0.2), 0 13px 24px -11px rgba(255, 152, 0, 0.6);
+  box-shadow: 0 5px 20px 0px rgba(0, 0, 0, 0.2),
+    0 13px 24px -11px rgba(255, 152, 0, 0.6);
 }
 .card .card-header-info {
-  box-shadow: 0 5px 20px 0px rgba(0, 0, 0, 0.2), 0 13px 24px -11px rgba(0, 188, 212, 0.6);
+  box-shadow: 0 5px 20px 0px rgba(0, 0, 0, 0.2),
+    0 13px 24px -11px rgba(0, 188, 212, 0.6);
 }
 .card .card-header-success {
-  box-shadow: 0 5px 20px 0px rgba(0, 0, 0, 0.2), 0 13px 24px -11px rgba(76, 175, 80, 0.6);
+  box-shadow: 0 5px 20px 0px rgba(0, 0, 0, 0.2),
+    0 13px 24px -11px rgba(76, 175, 80, 0.6);
 }
 .card [class*="header-"],
 .card[class*="bg-"] {
@@ -2226,7 +2323,8 @@ html:not([dir="rtl"]) .noUi-horizontal .noUi-origin {
   transition: all 0.2s ease-out;
   border: 1px solid #9c27b0;
   background: #fff;
-  box-shadow: 0 2px 2px 0 rgba(0, 0, 0, 0.14), 0 3px 1px -2px rgba(0, 0, 0, 0.12), 0 1px 5px 0 rgba(0, 0, 0, 0.2);
+  box-shadow: 0 2px 2px 0 rgba(0, 0, 0, 0.14),
+    0 3px 1px -2px rgba(0, 0, 0, 0.12), 0 1px 5px 0 rgba(0, 0, 0, 0.2);
 }
 
 .noUi-target {
@@ -2264,7 +2362,8 @@ html:not([dir="rtl"]) .noUi-horizontal .noUi-origin {
   transition: all 0.2s ease-out;
   border: 1px solid;
   background: #fff;
-  box-shadow: 0 2px 2px 0 rgba(0, 0, 0, 0.14), 0 3px 1px -2px rgba(0, 0, 0, 0.12), 0 1px 5px 0 rgba(0, 0, 0, 0.2);
+  box-shadow: 0 2px 2px 0 rgba(0, 0, 0, 0.14),
+    0 3px 1px -2px rgba(0, 0, 0, 0.12), 0 1px 5px 0 rgba(0, 0, 0, 0.2);
 }
 
 .noUi-active {
@@ -2356,7 +2455,12 @@ html:not([dir="rtl"]) .noUi-horizontal .noUi-origin {
   margin-bottom: 0;
 }
 
-.ecommerce-page .card-refine .checkbox input[type="checkbox"]:checked + .checkbox-material .check {
+.ecommerce-page
+  .card-refine
+  .checkbox
+  input[type="checkbox"]:checked
+  + .checkbox-material
+  .check {
   background: #e91e63;
 }
 

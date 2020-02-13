@@ -1,10 +1,6 @@
 <template>
-  <div
-    class="card card-product card-plain no-shadow"
-    data-colored-shadow="false"
-    style="height: 100%"
-  >
-    <div class="card-header card-header-image">
+  <div class="card card-product card-plain no-shadow" data-colored-shadow="false" style="height: 100%">
+    <div class="card-header card-header-image" @click="sendtrigger(product._id)">
       <router-link :to="'/products/' + product._id" exact>
         <img :src="product.images[0]" alt="..." />
       </router-link>
@@ -12,7 +8,7 @@
         <img :src="product.images[0]" alt="..." />
       </a>-->
     </div>
-    <div class="card-body">
+    <div class="card-body" @click="sendtrigger(product._id)">
       <router-link :to="'/products/' + product._id" exact>
         <h4 class="card-title">{{ product.title }}</h4>
       </router-link>
@@ -23,31 +19,14 @@
         <span class="price">€ {{ product.price }}</span>
       </div>
       <div style="display: flex; width: 40px; place-content: space-evenly; ">
-        <p
-          style="font-size: 1rem; font-weight: 400; margin: 0"
-        >{{ Math.round(product.rating * 2) / 2 }}</p>
-        <star-rating
-          v-model="product.rating"
-          :show-rating="false"
-          :max-rating="1"
-          :increment="0.5"
-          :star-size="20"
-          :read-only="true"
-        ></star-rating>
+        <p style="font-size: 1rem; font-weight: 400; margin: 0">{{ Math.round(product.rating * 2) / 2 }}</p>
+        <star-rating v-model="product.rating" :show-rating="false" :max-rating="1" :increment="0.5" :star-size="20" :read-only="true"></star-rating>
       </div>
       <div>
-        <md-button
-          class="md-rose md-just-icon md-simple"
-          @click="addToWishlist"
-          v-show="!updatedInWishlist"
-        >
+        <md-button class="md-rose md-just-icon md-simple" @click="addToWishlist" v-show="!updatedInWishlist">
           <md-icon>favorite_border</md-icon>
         </md-button>
-        <md-button
-          class="md-rose md-just-icon md-simple"
-          @click="removeFromWishlist"
-          v-show="updatedInWishlist"
-        >
+        <md-button class="md-rose md-just-icon md-simple" @click="removeFromWishlist" v-show="updatedInWishlist">
           <md-icon>favorite</md-icon>
         </md-button>
       </div>
@@ -76,6 +55,19 @@ export default {
     async removeFromWishlist() {
       this.$store.dispatch("REMOVE_FROM_WISHLIST", this.product._id);
       this.updatedInWishlist = false;
+    },
+    async sendtrigger(productid) {
+      try {
+        let { data } = await axios.get(`http://localhost:3000/api/user/verifytoken`);
+        console.log(data.id);
+        this.$ga.event({
+          eventCategory: productid,
+          eventAction: "clicked product",
+          eventLabel: data.id
+        });
+      } catch (err) {
+        console.log(err);
+      }
     }
   },
   beforeMount() {}

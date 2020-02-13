@@ -30,7 +30,7 @@ const NavbarStore = {
   showNavbar: false
 };
 Vue.use(VueAnalytics, {
-  id: "UA-157025691-1"
+  id: "UA-158187092-1"
 });
 
 axios.defaults.headers.common["x-token"] = localStorage.getItem("x-token");
