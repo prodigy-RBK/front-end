@@ -7,12 +7,10 @@
       :style="{
         'background-image': `url(${require('../assets/img/bg6.jpg')})`
       }"
-    >
-      <div class="container"></div>
-    </parallax>
+    ></parallax>
 
     <div class="section">
-      <div class="container">
+      <div class="container" style="max-width: 1600px;">
         <div class="main main-raised-custom main-product">
           <div class="row">
             <div class="col-md-6 col-sm-6">
@@ -103,9 +101,17 @@
               </div>
               <star-rating v-model="rating" :increment="0.5" :star-size="35" :inline="true"></star-rating>
               <div style="text-align-last: end;">
-                <md-button @click="addToCart" class="float-left md-rose md-round">
+                <md-button
+                  @click="addToCart"
+                  :class="{'float-left md-rose md-round' : inStock, 'float-left md-round': !inStock}"
+                >
                   Add to Cart &#xA0;
                   <i class="material-icons">shopping_cart</i>
+                  <md-tooltip
+                    :class="{'ahashakeheartache': test}"
+                    v-if="!inStock"
+                    md-direction="top"
+                  >Out of stock</md-tooltip>
                 </md-button>
               </div>
             </div>
@@ -382,6 +388,7 @@ export default {
     return {
       isAuthed: this.$store.state.user.loggedIn,
       review: null,
+      test: false,
       successNotif: false,
       reviewNotif: false,
       dangerNotif: false,
@@ -393,6 +400,8 @@ export default {
       activeSize: false,
       activeColor: false,
       product: null,
+      maxQuantity: 1,
+      inStock: false,
       sizes: [],
       rating: 0,
       colors: []
@@ -409,20 +418,25 @@ export default {
       if (this.selectedSize === "Select size" || this.selectedColor === "Select color") {
         this.sizeValidator = true;
         this.colorValidator = true;
+      } else if (!this.inStock) {
+        this.test = true;
+        setTimeout(() => {
+          this.test = false;
+        }, 500);
       } else {
         var product = {
           productId: this.product._id,
           selectedColor: this.selectedColor,
           selectedSize: this.selectedSize,
-          selectedQuantity: this.selectedQuantity
+          selectedQuantity: parseInt(this.selectedQuantity)
         };
         for (let i = 0; i < this.$store.state.cart.length; i++) {
-          console.log("here");
-          console.log(product.productId);
-          console.log(this.$store.state.cart[i].productId);
           if (product.productId === this.$store.state.cart[i].productId) {
-            console.log("checking");
-            if (product.selectedColor === this.$store.state.cart[i].selectedColor && product.selectedSize === this.$store.state.cart[i].selectedSize) {
+            if (
+              product.selectedColor ===
+                this.$store.state.cart[i].selectedColor &&
+              product.selectedSize === this.$store.state.cart[i].selectedSize
+            ) {
               this.dangerNotif = true;
               return;
             }
@@ -439,8 +453,9 @@ export default {
           review: this.review
         })
         .then(response => {
-          console.log(response);
-          this.product.reviews.push(response.data.reviews[response.data.reviews.length - 1]);
+          this.product.reviews.push(
+            response.data.reviews[response.data.reviews.length - 1]
+          );
           this.reviewNotif = true;
           this.review = null;
         });
@@ -481,20 +496,45 @@ export default {
     let productId = window.location.pathname.slice(10);
     let { data } = await axios.get(`http://localhost:3000/api/products/${productId}`);
     data.availability.map(elem => {
-      if (!this.colors.includes(elem.color)) {
-        this.colors.push(elem.color);
-      }
-      if (!this.sizes.includes(elem.size)) {
-        this.sizes.push(elem.size);
+      if (!!elem.quantity) {
+        this.inStock = true;
+        if (!this.colors.includes(elem.color)) {
+          this.colors.push(elem.color);
+        }
+        if (!this.sizes.includes(elem.size)) {
+          this.sizes.push(elem.size);
+        }
       }
     });
     this.product = data;
     this.rating = data.rating;
+    if (!this.inStock) {
+      this.selectedSize = "Out of Stock";
+      this.selectedColor = "Out of Stock";
+      this.selectedQuantity = 0;
+      this.maxQuantity = 0;
+    }
   },
   watch: {
     selectedSize: function() {
-      this.colors = this.product.availability.filter(el => el.size === this.selectedSize).map(elem => elem.color);
-      this.selectedColor = "Select color";
+      this.colors = this.product.availability
+        .filter(el => el.size === this.selectedSize)
+        .map(elem => elem.color);
+      this.selectedColor = this.inStock ? "Select color" : "Out of Stock";
+      // this.selectedColor = "Select color";
+    },
+    selectedColor: function() {
+      this.product.availability.forEach(elm => {
+        if (
+          this.selectedSize === elm.size &&
+          this.selectedColor === elm.color
+        ) {
+          this.maxQuantity = elm.quantity;
+          if (this.maxQuantity < this.selectedQuantity) {
+            this.selectedQuantity = 1;
+          }
+        }
+      });
     },
     rating: function() {
       let productId = window.location.pathname.slice(10);
@@ -551,5 +591,29 @@ export default {
 }
 .section-comments .title {
   margin-bottom: 30px;
+}
+
+.ahashakeheartache {
+  -webkit-animation: kf_shake 0.4s 1 linear;
+}
+@-webkit-keyframes kf_shake {
+  0% {
+    -webkit-transform: translate(30px);
+  }
+  20% {
+    -webkit-transform: translate(-30px);
+  }
+  40% {
+    -webkit-transform: translate(15px);
+  }
+  60% {
+    -webkit-transform: translate(-15px);
+  }
+  80% {
+    -webkit-transform: translate(8px);
+  }
+  100% {
+    -webkit-transform: translate(0px);
+  }
 }
 </style>

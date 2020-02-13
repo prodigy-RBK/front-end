@@ -1,7 +1,7 @@
 <template>
   <div class="wrapper">
     <div class="section page-header header-filter" :style="headerStyle">
-      <div class="container">
+      <div class="container" style="max-width: 1600px;">
         <div class="md-layout">
           <div class="md-layout-item md-size-33 md-small-size-66 md-xsmall-size-100 md-medium-size-40 mx-auto">
             <login-card header-color="green">
@@ -185,8 +185,8 @@ export default {
       logoutButton: true,
       // only needed if you want to render the button with the google ui
       renderParams: {
-        width: 250,
-        height: 50,
+        width: "300%",
+        height: 35,
         longtitle: true
       }
     };
@@ -266,9 +266,7 @@ export default {
           password: this.password
         })
         .then(response => {
-          console.log(response);
           if (response.data.status === "success") {
-            console.log(this);
             this.confirmationNotif = true;
             window.setTimeout(() => {
               router.push({ name: "index" });
@@ -277,9 +275,7 @@ export default {
             this.emailExistsNotif = true;
           }
         })
-        .catch(function(error) {
-          console.log(error);
-        });
+        .catch(function(error) {});
     },
     getValidationClass(fieldName) {
       const field = this.$v[fieldName];

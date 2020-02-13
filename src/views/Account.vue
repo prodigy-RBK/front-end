@@ -12,7 +12,7 @@
       </div>
     </parallax>
     <div class="main main-raised-cart">
-      <div class="container">
+      <div class="container" style="max-width:1600px;">
         <div class="card card-plain">
           <div class="card-body">
             <h3 class="card-title">My orders</h3>

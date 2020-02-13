@@ -33,8 +33,20 @@ Vue.use(VueAnalytics, {
   id: "UA-158187092-1"
 });
 
-axios.defaults.headers.common["x-token"] = localStorage.getItem("x-token");
-axios.defaults.headers.common["x-refresh-token"] = localStorage.getItem("x-refresh-token");
+axios.interceptors.request.use(
+  request => {
+    if (localStorage.getItem("x-token")) {
+      request.headers["x-token"] = localStorage.getItem("x-token");
+    }
+    if (localStorage.getItem("x-refresh-token")) {
+      request.headers["x-refresh-token"] = localStorage.getItem("x-refresh-token");
+    }
+    return request;
+  },
+  function(error) {
+    return Promise.reject(error);
+  }
+);
 axios.interceptors.response.use(
   function(response) {
     if (response.headers["x-token"]) {

@@ -1,16 +1,30 @@
 <template>
-  <div>
+  <div
+    style="        
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 0px 67px;
+      place-content: space-evenly;"
+  >
     <h4 slot="title" class="card-title">Login</h4>
     <facebook-login
+      style="justify-content: center;"
       slot="buttons"
       class="button"
       appId="2678136558938821"
       @login="getUserData"
-      @logout="onLogout"
-      @sdk-loaded="sdkLoaded"
       @get-initial-status="getUserData"
     ></facebook-login>
-    <GoogleLogin slot="buttons" class="button" :params="params" :renderParams="renderParams" :onSuccess="onSuccess" :onFailure="onFailure"> </GoogleLogin>
+    <br />
+    <GoogleLogin
+      slot="buttons"
+      class="button"
+      :params="params"
+      :renderParams="renderParams"
+      :onSuccess="onSuccess"
+    ></GoogleLogin>
+    <br />
     <p slot="description" class="description">Or Be Classical</p>
     <md-field class="md-form-group" :class="getValidationClass('email')" slot="inputs">
       <md-icon>email</md-icon>
@@ -24,7 +38,10 @@
       <label for="password">Password...</label>
       <md-input name="password" id="password" v-model="password" type="password"></md-input>
       <span class="md-error" v-if="!$v.password.required">Password is required</span>
-      <span class="md-error" v-else-if="!$v.password.minlength">Your password should have a minimum of 8 characters</span>
+      <span
+        class="md-error"
+        v-else-if="!$v.password.minlength"
+      >Your password should have a minimum of 8 characters</span>
     </md-field>
     <md-progress-bar style="width: 100%" slot="footer" md-mode="indeterminate" v-if="sending" />
 
@@ -39,7 +56,12 @@ import router from "../router";
 import { mapMutations, mapGetters } from "vuex";
 import axios from "axios";
 import { validationMixin } from "vuelidate";
-import { required, email, minLength, maxLength } from "vuelidate/lib/validators";
+import {
+  required,
+  email,
+  minLength,
+  maxLength
+} from "vuelidate/lib/validators";
 
 export default {
   name: "login-modal",
@@ -54,13 +76,14 @@ export default {
       email: null,
       password: null,
       params: {
-        client_id: "533129668624-0iiemq738iusdp6tdq5791thhiks11fq.apps.googleusercontent.com"
+        client_id:
+          "533129668624-0iiemq738iusdp6tdq5791thhiks11fq.apps.googleusercontent.com"
       },
       logoutButton: true,
       // only needed if you want to render the button with the google ui
       renderParams: {
-        width: 250,
-        height: 50,
+        width: "225%",
+        height: 35,
         longtitle: true
       }
     };
@@ -95,8 +118,8 @@ export default {
           })
           .then(response => {
             this.UPDATE_LOGIN(true);
-            this.$emit("update:isAuthed", true);
             localStorage.setItem("x-token", this.token);
+            this.$emit("update:isAuthed", true);
           });
       });
     },
@@ -110,7 +133,10 @@ export default {
         .then(response => {
           this.UPDATE_LOGIN(true);
           this.$emit("update:isAuthed", true);
-          localStorage.setItem("x-token", googleUser.getAuthResponse().id_token);
+          localStorage.setItem(
+            "x-token",
+            googleUser.getAuthResponse().id_token
+          );
         });
     },
     submit: function(e) {
@@ -121,21 +147,24 @@ export default {
           password: this.password
         })
         .then(response => {
-          console.log("====>", response);
           if (response.data.status === "success") {
-            localStorage.setItem("x-token", response.data.details.token.refreshToken);
-            localStorage.setItem("x-refresh-token", response.data.details.token.token);
+            this.UPDATE_LOGIN(true);
             if (response.data.details.active) {
-              this.UPDATE_LOGIN(true);
-              this.$emit("update:isAuthed", true);
+              this.UPDATE_ACTIVATE();
+              this.successNotif = true;
+              window.setTimeout(() => {
+                this.$emit("update:isAuthed", true);
+              }, 1500);
             } else {
               router.push({ name: "confirmation" });
             }
+          } else if (response.data.status === "wrong password") {
+            this.wrongPasswordNotif = true;
+          } else {
+            this.wrongUsernameNotif = true;
           }
         })
-        .catch(function(error) {
-          console.log(error);
-        });
+        .catch(function(error) {});
     },
     getValidationClass(fieldName) {
       const field = this.$v[fieldName];
@@ -158,9 +187,7 @@ export default {
     }
   },
   watch: {
-    isAuthed: function() {
-      console.log(this.isAuthed);
-    }
+    isAuthed: function() {}
   }
 };
 </script>
