@@ -27,35 +27,43 @@
       <div class="section">
         <div class="container" style="max-width: 1600px;">
           <!-- Section: Latest Offers -->
-          <h2 class="section-title">Latest Offers</h2>
+          <h2 class="section-title">Recommended For You</h2>
           <div class="row">
-            <!-- Repeat after this line -->
-            <div class="col-md-4">
+            <div
+              class="col-md-4"
+              v-for="product in recommendedproduct.slice(0,3)"
+              :key="product._id"
+            >
               <div class="card card-product card-plain">
                 <div class="card-header card-header-image">
                   <a href="#pablo">
-                    <img src="../assets/img/examples/gucci.jpg" alt />
+                    <img :src="product.images[0]" />
                   </a>
                 </div>
                 <div class="card-body text-center">
                   <h4 class="card-title">
-                    <a href="#pablo">Gucci</a>
+                    <a href="#pablo">{{ product.title }}</a>
                   </h4>
-                  <p
-                    class="card-description"
-                  >The structured shoulders and sleek detailing ensure a sharp silhouette. Team it with a silk pocket square and leather loafers.</p>
+                  <!-- <p class="card-description">{{ product.description }}</p> -->
                 </div>
                 <div class="card-footer">
                   <div class="price-container">
-                    <span class="price price-old">€1,430</span>
-                    <span class="price price-new">€743</span>
+                    <span class="price price-new">€ {{ product.price }}</span>
                   </div>
-                  <div class="stats ml-auto">
-                    <md-button class="md-rose md-just-icon md-simple">
-                      <md-icon>favorite</md-icon>
-                    </md-button>
-                    <md-button class="md-rose md-just-icon md-simple">
+                  <div>
+                    <md-button
+                      class="md-rose md-just-icon md-simple"
+                      @click="addToWishlist"
+                      v-show="!updatedInWishlist"
+                    >
                       <md-icon>favorite_border</md-icon>
+                    </md-button>
+                    <md-button
+                      class="md-rose md-just-icon md-simple"
+                      @click="removeFromWishlist"
+                      v-show="updatedInWishlist"
+                    >
+                      <md-icon>favorite</md-icon>
                     </md-button>
                   </div>
                 </div>
@@ -214,6 +222,8 @@ import { FilterSection } from "@/components";
 import { ProductCard } from "../components";
 import { mapMutations, mapGetters } from "vuex";
 import axios from "axios";
+import Vue from "vue";
+import VueAnalytics from "vue-analytics";
 
 export default {
   name: "shopping-cart",
@@ -249,9 +259,12 @@ export default {
       latestArticles: [],
       popularArticles: [],
       popularArticles1: [],
-      popularArticles2: []
+      popularArticles2: [],
+      recommendedproduct: [],
+      updatedInWishlist: this.inWishlist
     };
   },
+
   methods: {
     ...mapMutations(["ADD_PRODUCTS", "DISPLAY_PRODUCTS"]),
     ...mapGetters(["auth", "getProducts", "getDisplayedProducts"]),
@@ -267,13 +280,72 @@ export default {
       let min = max - 9;
       this.pageProducts = this.getDisplayedProducts().slice(min, max);
     },
+
     async fetchArticles() {
-      let { data } = await axios.get(
-        "https://prodigy-rbk.herokuapp.com/api/articles"
-      );
+      let { data } = await axios.get("http://localhost:3000/api/articles");
+      this.popularArticles = data.popularArticles.articles;
       this.latestArticles = data.latestArticles.articles;
-      this.popularArticles1 = this.latestArticles.slice(0, 3);
-      this.popularArticles2 = this.latestArticles.slice(3, 5);
+      this.popularArticles1 = this.popularArticles.slice(0, 3);
+      this.popularArticles2 = this.popularArticles.slice(3, 5);
+    },
+    async getrecommendedproducts() {
+      if (this.recommendedproduct.length === 0) {
+        try {
+          let { data } = await axios.get(
+            `http://localhost:3000/api/user/verifytoken`
+          );
+
+          try {
+            let recprods = await axios.get(
+              "http://localhost:3000/api/recommendedproducts/getrecommprods",
+              { params: { userid: data.iduser } }
+            );
+            if (recprods.data !== "noid") {
+              function shuffle(array) {
+                for (let i = array.length - 1; i > 0; i--) {
+                  let j = Math.floor(Math.random() * (i + 1));
+                  [array[i], array[j]] = [array[j], array[i]];
+                }
+                return array;
+              }
+              this.recommendedproduct = shuffle(recprods.data);
+            } else {
+              let mostviewed = await axios.get(
+                "http://localhost:3000/api/analytics/pageview"
+              );
+
+              this.recommendedproduct = mostviewed.data;
+            }
+          } catch (err) {
+            console.log(err);
+          }
+        } catch (err) {
+          let mostviewed = await axios.get(
+            "http://localhost:3000/api/analytics/pageview"
+          );
+
+          this.recommendedproduct = mostviewed.data;
+          console.log(err);
+        }
+      } else {
+        console.log("done");
+        function shuffle(array) {
+          for (let i = array.length - 1; i > 0; i--) {
+            let j = Math.floor(Math.random() * (i + 1));
+            [array[i], array[j]] = [array[j], array[i]];
+          }
+          return array;
+        }
+        this.recommendedproduct = shuffle(this.recommendedproduct);
+      }
+    },
+    async addToWishlist() {
+      this.$store.dispatch("ADD_TO_WISHLIST", this.product._id);
+      this.updatedInWishlist = true;
+    },
+    async removeFromWishlist() {
+      this.$store.dispatch("REMOVE_FROM_WISHLIST", this.product._id);
+      this.updatedInWishlist = false;
     }
   },
   computed: {
@@ -293,11 +365,12 @@ export default {
   },
   async beforeMount() {
     let { data } = await axios.get(
-      `https://prodigy-rbk.herokuapp.com/api/products/allproducts`
+      `http://localhost:3000/api/products/allproducts`
     );
     this.ADD_PRODUCTS(data);
     this.DISPLAY_PRODUCTS(data);
     this.fetchArticles();
+    this.getrecommendedproducts();
   },
   watch: {
     infoPagination: async function() {

@@ -72,7 +72,7 @@ export default {
       }
     },
     async getWishlist() {
-      let { data } = await axios.post(`https://prodigy-rbk.herokuapp.com/api/products/allproducts`, {
+      let { data } = await axios.post(`http://localhost:3000/api/products/allproducts`, {
         products: this.$store.state.wishlist
       });
       this.wishlist = data;

@@ -93,8 +93,8 @@
                           style="padding: 10px"
                           type="number"
                           id="big"
-                          min="0"
-                          :max="maxQuantity"
+                          min="1"
+                          max="5"
                           v-model="selectedQuantity"
                         ></md-input>
                       </md-menu>
@@ -545,12 +545,9 @@ export default {
     submitReview() {
       let productId = window.location.pathname.slice(10);
       axios
-        .put(
-          `https://prodigy-rbk.herokuapp.com/api/products/${productId}/review`,
-          {
-            review: this.review
-          }
-        )
+        .put(`http://localhost:3000/api/products/${productId}/review`, {
+          review: this.review
+        })
         .then(response => {
           this.product.reviews.push(
             response.data.reviews[response.data.reviews.length - 1]
@@ -593,8 +590,9 @@ export default {
   },
   async beforeMount() {
     let productId = window.location.pathname.slice(10);
+    this.$ga.page(`/${productId}`);
     let { data } = await axios.get(
-      `https://prodigy-rbk.herokuapp.com/api/products/${productId}`
+      `http://localhost:3000/api/products/${productId}`
     );
     data.availability.map(elem => {
       if (!!elem.quantity) {
@@ -639,12 +637,9 @@ export default {
     },
     rating: function() {
       let productId = window.location.pathname.slice(10);
-      axios.put(
-        `https://prodigy-rbk.herokuapp.com/api/products/${productId}/rating`,
-        {
-          rating: this.rating
-        }
-      );
+      axios.put(`http://localhost:3000/api/products/${productId}/rating`, {
+        rating: this.rating
+      });
     }
   }
 };

@@ -1,21 +1,11 @@
 <template>
-  <md-toolbar
-    id="toolbar"
-    md-elevation="0"
-    class="md-transparent md-absolute"
-    :class="extraNavClasses"
-    :color-on-scroll="colorOnScroll"
-  >
+  <md-toolbar id="toolbar" md-elevation="0" class="md-transparent md-absolute" :class="extraNavClasses" :color-on-scroll="colorOnScroll">
     <div class="md-toolbar-row md-collapse-lateral">
       <div class="md-toolbar-section-start">
         <h3 class="md-title">Prodigy Strore</h3>
       </div>
       <div class="md-toolbar-section-end">
-        <md-button
-          class="md-just-icon md-simple md-toolbar-toggle"
-          :class="{ toggled: toggledClass }"
-          @click="toggleNavbarMobile()"
-        >
+        <md-button class="md-just-icon md-simple md-toolbar-toggle" :class="{ toggled: toggledClass }" @click="toggleNavbarMobile()">
           <span class="icon-bar"></span>
           <span class="icon-bar"></span>
           <span class="icon-bar"></span>
@@ -48,10 +38,7 @@
                 </router-link>
               </template>
 
-              <template
-                slot="md-autocomplete-empty"
-                slot-scope="{ term }"
-              >No items matching "{{ term }}" were found.</template>
+              <template slot="md-autocomplete-empty" slot-scope="{ term }">No items matching "{{ term }}" were found.</template>
             </md-autocomplete>
           </div>
           <div class="md-collapse-wrapper">
@@ -65,26 +52,16 @@
                   <p>Home</p>
                 </router-link>
               </md-list-item>
-              <md-list-item
-                href="https://demos.creative-tim.com/vue-material-kit/documentation/"
-                target="_blank"
-              >
+              <md-list-item href="https://demos.creative-tim.com/vue-material-kit/documentation/" target="_blank">
                 <i class="material-icons">content_paste</i>
                 <p>Documentation</p>
               </md-list-item>
 
               <li class="md-list-item">
-                <a
-                  href="javascript:void(0)"
-                  class="md-list-item-router md-list-item-container md-button-clean dropdown"
-                >
+                <a href="javascript:void(0)" class="md-list-item-router md-list-item-container md-button-clean dropdown">
                   <div class="md-list-item-content">
                     <drop-down direction="down">
-                      <md-button
-                        slot="title"
-                        class="md-button md-button-link md-white md-simple dropdown-toggle"
-                        data-toggle="dropdown"
-                      >
+                      <md-button slot="title" class="md-button md-button-link md-white md-simple dropdown-toggle" data-toggle="dropdown">
                         <i class="material-icons">view_carousel</i>
                         <p>Views</p>
                       </md-button>
@@ -113,17 +90,10 @@
                 </a>
               </li>
               <li class="md-list-item">
-                <a
-                  href="javascript:void(0)"
-                  class="md-list-item-router md-list-item-container md-button-clean dropdown"
-                >
+                <a href="javascript:void(0)" class="md-list-item-router md-list-item-container md-button-clean dropdown">
                   <div class="md-list-item-content">
                     <drop-down direction="down">
-                      <md-button
-                        slot="title"
-                        class="md-button md-button-link md-white md-simple dropdown-toggle"
-                        data-toggle="dropdown"
-                      >
+                      <md-button slot="title" class="md-button md-button-link md-white md-simple dropdown-toggle" data-toggle="dropdown">
                         <i class="material-icons">person</i>
                       </md-button>
                       <ul class="dropdown-menu dropdown-with-icons">
@@ -155,11 +125,7 @@
                   <i class="material-icons">favorite</i>
                 </router-link>
               </md-list-item>
-              <md-badge
-                class="md-primary"
-                md-position="top"
-                :md-content="this.$store.state.cart.length"
-              >
+              <md-badge class="md-primary" md-position="top" :md-content="this.$store.state.cart.length">
                 <md-list-item>
                   <router-link to="/shoppingCart" exact>
                     <i class="material-icons">shopping_cart</i>
@@ -199,15 +165,7 @@ export default {
       type: String,
       default: "white",
       validator(value) {
-        return [
-          "white",
-          "default",
-          "primary",
-          "danger",
-          "success",
-          "warning",
-          "info"
-        ].includes(value);
+        return ["white", "default", "primary", "danger", "success", "warning", "info"].includes(value);
       }
     },
     colorOnScroll: {
@@ -245,8 +203,7 @@ export default {
       this.bodyClick();
     },
     handleScroll() {
-      let scrollValue =
-        document.body.scrollTop || document.documentElement.scrollTop;
+      let scrollValue = document.body.scrollTop || document.documentElement.scrollTop;
       let navbarColor = document.getElementById("toolbar");
       this.currentScrollValue = scrollValue;
       if (this.colorOnScroll > 0 && scrollValue > this.colorOnScroll) {
@@ -271,7 +228,7 @@ export default {
   },
   async beforeMount() {
     try {
-      await axios.get("https://prodigy-rbk.herokuapp.com/api/user/verifytoken");
+      await axios.get("http://localhost:3000/api/user/verifytoken");
       this.$store.commit("UPDATE_LOGIN", true);
       this.$store.dispatch("UPDATE_USER_WISHLIST");
     } catch (err) {

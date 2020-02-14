@@ -3,13 +3,7 @@
     <md-card-content>
       <h4 class="card-title">
         Refine
-        <md-button
-          @click="resetFilters"
-          class="md-just-icon md-simple pull-right"
-          rel="tooltip"
-          title
-          data-original-title="Reset Filter"
-        >
+        <md-button class="md-just-icon md-simple pull-right" rel="tooltip" title data-original-title="Reset Filter">
           <i class="material-icons">cached</i>
         </md-button>
       </h4>
@@ -27,16 +21,8 @@
           <div id="collapseOne" class="message-body">
             <slider v-model="sliders.rangeSlider" type="info" :connect="true"></slider>
             <div slot="sliderFooter" class="card-body card-refine">
-              <span
-                id="price-left"
-                class="price-left pull-left"
-                data-currency="€"
-              >{{ this.sliders.rangeSlider[0] }}</span>
-              <span
-                id="price-right"
-                class="price-right pull-right"
-                data-currency="€"
-              >{{ this.sliders.rangeSlider[1] }}</span>
+              <span id="price-left" class="price-left pull-left" data-currency="€">{{ this.sliders.rangeSlider[0] }}</span>
+              <span id="price-right" class="price-right pull-right" data-currency="€">{{ this.sliders.rangeSlider[1] }}</span>
             </div>
           </div>
         </div>
@@ -51,12 +37,7 @@
             </h5>
           </div>
           <div id="collapseTwo" class="message-body">
-            <md-checkbox
-              v-model="filters.brandsQuery"
-              :value="brand._id"
-              v-for="brand in brands"
-              :key="brand._id"
-            >{{ brand.name }}</md-checkbox>
+            <md-checkbox v-model="filters.brandsQuery" :value="brand._id" v-for="brand in brands" :key="brand._id">{{ brand.name }}</md-checkbox>
           </div>
         </div>
         <!-- Section: Category filter -->
@@ -70,12 +51,7 @@
             </h5>
           </div>
           <div id="collapseThree" class="message-body">
-            <md-checkbox
-              v-model="filters.categoriesQuery"
-              :value="category"
-              v-for="(category, index) in categories"
-              :key="index"
-            >{{ category }}</md-checkbox>
+            <md-checkbox v-model="filters.categoriesQuery" :value="category" v-for="(category, index) in categories" :key="index">{{ category }}</md-checkbox>
           </div>
         </div>
         <!-- Section: Tags filter -->
@@ -89,12 +65,7 @@
             </h5>
           </div>
           <div id="collapseFour" class="message-body">
-            <md-checkbox
-              v-model="filters.tagsQuery"
-              :value="tag"
-              v-for="(tag, index) in tags"
-              :key="index"
-            >{{ tag }}</md-checkbox>
+            <md-checkbox v-model="filters.tagsQuery" :value="tag" v-for="(tag, index) in tags" :key="index">{{ tag }}</md-checkbox>
           </div>
         </div>
       </div>
@@ -150,39 +121,31 @@ export default {
       this.sliders.rangeSlider = [0, 1000];
     },
     getBrands(gender) {
-      return axios
-        .get(`https://prodigy-rbk.herokuapp.com/api/brand`)
-        .then(({ data }) => {
-          this.brands = data;
-          this.$store.commit("UPDATE_FILTERS", {
-            filter: "brands",
-            values: data
-          });
+      return axios.get(`http://localhost:3000/api/brand`).then(({ data }) => {
+        this.brands = data;
+        this.$store.commit("UPDATE_FILTERS", {
+          filter: "brands",
+          values: data
         });
+      })
     },
     getTags(gender) {
-      return axios
-        .get(`https://prodigy-rbk.herokuapp.com/api/products/tags/${gender}`)
-        .then(({ data }) => {
-          this.tags = data;
-          this.$store.commit("UPDATE_FILTERS", {
-            filter: "tags",
-            values: data
-          });
+      return axios.get(`http://localhost:3000/api/products/tags/${gender}`).then(({ data }) => {
+        this.tags = data;
+        this.$store.commit("UPDATE_FILTERS", {
+          filter: "tags",
+          values: data
         });
+      });
     },
     getCategories(gender) {
-      return axios
-        .get(
-          `https://prodigy-rbk.herokuapp.com/api/products/categories/${gender}`
-        )
-        .then(({ data }) => {
-          this.categories = data;
-          this.$store.commit("UPDATE_FILTERS", {
-            filter: "categories",
-            values: data
-          });
+      return axios.get(`http://localhost:3000/api/products/categories/${gender}`).then(({ data }) => {
+        this.categories = data;
+        this.$store.commit("UPDATE_FILTERS", {
+          filter: "categories",
+          values: data
         });
+      });
     },
     updatePriceRange() {
       this.filters.priceRange = this.sliders.rangeSlider;
@@ -202,11 +165,7 @@ export default {
   async beforeMount() {
     // let gender = window.location.pathname.split("/")[1];
     let gender = "Men";
-    await Promise.all([
-      this.getCategories(gender),
-      this.getBrands(gender),
-      this.getTags(gender)
-    ]);
+    await Promise.all([this.getCategories(gender), this.getBrands(gender), this.getTags(gender)]);
   },
   watch: {
     "filters.brandsQuery": function() {

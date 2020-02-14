@@ -18,6 +18,9 @@ import router from "./router";
 
 import MaterialKit from "./plugins/material-kit";
 import store from "./store";
+
+import VueAnalytics from "vue-analytics";
+
 import axios from "axios";
 Vue.config.productionTip = false;
 
@@ -26,6 +29,10 @@ Vue.use(MaterialKit);
 const NavbarStore = {
   showNavbar: false
 };
+Vue.use(VueAnalytics, {
+  id: "UA-158187092-1"
+});
+
 axios.interceptors.request.use(
   request => {
     if (localStorage.getItem("x-token")) {
