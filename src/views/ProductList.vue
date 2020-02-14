@@ -286,14 +286,58 @@ export default {
       this.popularArticles = data.popularArticles.articles;
       this.latestArticles = data.latestArticles.articles;
       this.popularArticles1 = this.popularArticles.slice(0, 3);
-      this.popularArticles2 = this.popularArticles.slice(3,5);
+      this.popularArticles2 = this.popularArticles.slice(3, 5);
     },
     async getrecommendedproducts() {
-      let { data } = await axios.get(
-        "http://localhost:3000/api/recommendedproducts/getrecommprods"
-      );
-      this.recommendedproduct = data;
-      console.log(data);
+      if (this.recommendedproduct.length === 0) {
+        try {
+          let { data } = await axios.get(
+            `http://localhost:3000/api/user/verifytoken`
+          );
+
+          try {
+            let recprods = await axios.get(
+              "http://localhost:3000/api/recommendedproducts/getrecommprods",
+              { params: { userid: data.iduser } }
+            );
+            if (recprods.data !== "noid") {
+              function shuffle(array) {
+                for (let i = array.length - 1; i > 0; i--) {
+                  let j = Math.floor(Math.random() * (i + 1));
+                  [array[i], array[j]] = [array[j], array[i]];
+                }
+                return array;
+              }
+              this.recommendedproduct = shuffle(recprods.data);
+            } else {
+              let mostviewed = await axios.get(
+                "http://localhost:3000/api/analytics/pageview"
+              );
+
+              this.recommendedproduct = mostviewed.data;
+            }
+          } catch (err) {
+            console.log(err);
+          }
+        } catch (err) {
+          let mostviewed = await axios.get(
+            "http://localhost:3000/api/analytics/pageview"
+          );
+
+          this.recommendedproduct = mostviewed.data;
+          console.log(err);
+        }
+      } else {
+        console.log("done");
+        function shuffle(array) {
+          for (let i = array.length - 1; i > 0; i--) {
+            let j = Math.floor(Math.random() * (i + 1));
+            [array[i], array[j]] = [array[j], array[i]];
+          }
+          return array;
+        }
+        this.recommendedproduct = shuffle(this.recommendedproduct);
+      }
     },
     async addToWishlist() {
       this.$store.dispatch("ADD_TO_WISHLIST", this.product._id);
