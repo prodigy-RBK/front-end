@@ -20,7 +20,8 @@ export default new Vuex.Store({
       tags: [],
       priceRange: [0, 1000]
     },
-    cart: []
+    cart: [],
+    wishlist: []
   },
   getters: {
     auth(state) {
@@ -40,6 +41,9 @@ export default new Vuex.Store({
     },
     getCart(state) {
       return state.cart;
+    },
+    getWishlist(state) {
+      return state.wishlist;
     }
   },
   mutations: {
@@ -61,12 +65,22 @@ export default new Vuex.Store({
     },
     ADD_TO_CART: (state, product) => {
       state.cart.push(product);
+      console.log(product, "state", state.cart);
     },
     REMOVE_FROM_CART: (state, index) => {
       state.cart.splice(index, 1);
     },
+    ADD_QUANTITY: (state, index) => {
+      state.cart[index].selectedQuantity++;
+    },
+    SUBTRACT_QUANTITY: (state, index) => {
+      state.cart[index].selectedQuantity--;
+    },
     DELETE_CART: state => {
       state.cart = [];
+    },
+    UPDATE_WISHLIST: (state, payload) => {
+      state.wishlist = payload;
     }
   },
   actions: {
@@ -77,7 +91,7 @@ export default new Vuex.Store({
       if (!tagsQuery.length) tagsQuery = this.state.filters.tags;
       page = page || 1;
       axios
-        .post("http://127.0.0.1:3000/api/products/search", {
+        .post("https://prodigy-rbk.herokuapp.com/api/products/search", {
           brands: brandsQuery,
           categories: categoriesQuery,
           tags: tagsQuery,
@@ -85,6 +99,22 @@ export default new Vuex.Store({
           page: page
         })
         .then(({ data }) => this.commit("DISPLAY_PRODUCTS", data));
+    },
+    UPDATE_USER_WISHLIST: async function(state) {
+      let { data } = await axios.get("https://prodigy-rbk.herokuapp.com/api/user/wishlist");
+      this.commit("UPDATE_WISHLIST", data.wishlist);
+    },
+    ADD_TO_WISHLIST: async function(state, payload) {
+      let { data } = await axios.put("https://prodigy-rbk.herokuapp.com/api/user/wishlist", { product: payload });
+      this.commit("UPDATE_WISHLIST", data);
+    },
+    REMOVE_FROM_WISHLIST: async function(state, payload) {
+      let { data } = await axios.delete("https://prodigy-rbk.herokuapp.com/api/user/wishlist", {
+        data: {
+          product: payload
+        }
+      });
+      this.commit("UPDATE_WISHLIST", data);
     }
   },
   plugins: [
