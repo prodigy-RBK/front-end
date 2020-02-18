@@ -108,7 +108,7 @@ export default {
     }
   },
   async beforeMount() {
-    let { data } = await axios.get(`https://prodigy-rbk.herokuapp.com/api/orders/user/`);
+    let { data } = await axios.get(`http://localhost:3000/api/orders/user/`);
     this.orders = data;
   }
 };

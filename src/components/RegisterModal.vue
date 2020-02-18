@@ -18,8 +18,7 @@
       :onSuccess="onSuccess"
       :onFailure="onFailure"
       style="content: Login with Google !important;"
-    >
-    </GoogleLogin>
+    ></GoogleLogin>
     <p slot="description" class="description">Or Be Classical</p>
     <md-field class="md-form-group" slot="inputs">
       <md-icon>face</md-icon>
@@ -65,7 +64,8 @@ export default {
       email: null,
       password: null,
       params: {
-        client_id: "533129668624-0iiemq738iusdp6tdq5791thhiks11fq.apps.googleusercontent.com"
+        client_id:
+          "533129668624-0iiemq738iusdp6tdq5791thhiks11fq.apps.googleusercontent.com"
       },
       logoutButton: true,
       // only needed if you want to render the button with the google ui
@@ -82,7 +82,7 @@ export default {
     getUserData(res) {
       FB.api("/me", "GET", { fields: "id,name,email" }, response => {
         axios
-          .post("https://prodigy-rbk.herokuapp.com/api/user/login/socialF", {
+          .post("http://localhost:3000/api/user/login/socialF", {
             token: res.response.authResponse.accessToken,
             email: response.email
           })
@@ -96,31 +96,31 @@ export default {
     onSuccess(googleUser) {
       var profile = googleUser.getBasicProfile();
       axios
-        .post("https://prodigy-rbk.herokuapp.com/api/user/login/social", {
+        .post("http://localhost:3000/api/user/login/social", {
           token: googleUser.getAuthResponse().id_token
         })
         .then(response => {
-          localStorage.setItem("x-token", googleUser.getAuthResponse().id_token);
+          localStorage.setItem(
+            "x-token",
+            googleUser.getAuthResponse().id_token
+          );
           router.push({ name: "index" });
         });
     },
     submit: function(e, next) {
       axios
-        .post("https://prodigy-rbk.herokuapp.com/api/user/signUp", {
+        .post("http://localhost:3000/api/user/signUp", {
           firstName: this.registerFirstname,
           lastName: this.registerLastName,
           email: this.registerEmail,
           password: this.registerPassword
         })
         .then(function(response) {
-          console.log(response);
           if (response.data.status === "success") {
             router.push({ name: "confirmation" });
           }
         })
-        .catch(function(error) {
-          console.log(error);
-        });
+        .catch(function(error) {});
     }
   }
 };

@@ -152,6 +152,22 @@
           <b>ERROR ALERT</b> : Cannot do that, please delete the product...
         </div>
       </div>
+      <div v-if="quantityNotif" class="alert alertTop alert-danger">
+        <div class="container">
+          <button
+            type="button"
+            aria-hidden="true"
+            class="close"
+            @click="removeNotify('quantityNotif')"
+          >
+            <md-icon>clear</md-icon>
+          </button>
+          <div class="alert-icon">
+            <md-icon>info_outline</md-icon>
+          </div>
+          <b>ERROR ALERT</b> : Maximum quantity reached...
+        </div>
+      </div>
     </div>
     <div id="notifications2">
       <div v-if="successNotif" class="alert alertBottom alert-success">
@@ -175,6 +191,22 @@
             <md-icon>info_outline</md-icon>
           </div>
           <b>ERROR ALERT</b> : Cannot do that, please delete the product...
+        </div>
+      </div>
+      <div v-if="quantityNotif" class="alert alertBottom alert-danger">
+        <div class="container">
+          <button
+            type="button"
+            aria-hidden="true"
+            class="close"
+            @click="removeNotify('quantityNotif')"
+          >
+            <md-icon>clear</md-icon>
+          </button>
+          <div class="alert-icon">
+            <md-icon>info_outline</md-icon>
+          </div>
+          <b>ERROR ALERT</b> : Maximum quantity reached...
         </div>
       </div>
     </div>
@@ -213,6 +245,7 @@ export default {
     return {
       successNotif: false,
       dangerNotif: false,
+      quantityNotif: false,
       classicModal: false,
       publicKey: "pk_test_aoYl8Wtzsg8kvzaCJTY1XLBO008PAkBhvW",
       isAuthed: this.$store.state.user.loggedIn,
@@ -266,8 +299,33 @@ export default {
       this.modalCount--;
     },
     addQuantity(index) {
-      this.ADD_QUANTITY(index);
-      this.test();
+      const cartProduct = this.$store.state.cart[index];
+      this.products[index].productId.availability.forEach(elm => {
+        if (
+          elm.color === cartProduct.selectedColor &&
+          elm.size === cartProduct.selectedSize
+        ) {
+          if (elm.quantity < cartProduct.selectedQuantity + 1) {
+            this.quantityNotif = true;
+          }
+        }
+      });
+      if (!this.quantityNotif) {
+        this.ADD_QUANTITY(index);
+        this.test();
+      }
+    },
+    checkAvailability(cartProduct, index) {
+      cartProduct.productId.availability.forEach(elm => {
+        if (
+          elm.color === cartProduct.selectedColor &&
+          elm.size === cartProduct.selectedSize
+        ) {
+          if (elm.quantity < cartProduct.selectedQuantity) {
+            this.deleteProduct(index);
+          }
+        }
+      });
     },
     subtractQuantity(index) {
       if (this.products[index].selectedQuantity > 1) {
@@ -283,7 +341,6 @@ export default {
       this.classicModal = false;
       let products = [];
       let orderPrice = 0;
-
       this.products.forEach(product => {
         products.push({
           productId: product.productId._id,
@@ -294,31 +351,38 @@ export default {
         });
         orderPrice += product.selectedQuantity * product.productId.price;
       });
-      StripeCheckout.configure({
-        key: this.publicKey,
-        locale: "auto",
-        token: async function(token) {
-          let { data } = await axios.post("https://prodigy-rbk.herokuapp.com/api/stripe/purchase", {
-            token: token.id,
-            amount: orderPrice * 100
-          });
-          console.log(data);
-          axios
-            .post("https://prodigy-rbk.herokuapp.com/api/orders/order", {
-              products: products,
-              orderPrice: orderPrice,
-              deliveryInfo: that.deliveryInfo
-            })
-            .then(response => {
-              console.log(response);
-
-              that.resetStates();
-              that.successNotif = true;
-            });
-        }
-      }).open({
-        amount: orderPrice * 100
-      });
+      if (this.deliveryInfo.payment_method === "Credit Card") {
+        StripeCheckout.configure({
+          key: this.publicKey,
+          locale: "auto",
+          token: async function(token) {
+            let { data } = await axios.post(
+              "https://prodigy-rbk.herokuapp.com/api/stripe/purchase",
+              {
+                token: token.id,
+                amount: orderPrice * 100
+              }
+            );
+            this.postOrder(products, orderPrice, that.deliveryInfo);
+          }
+        }).open({
+          amount: orderPrice * 100
+        });
+      } else {
+        this.postOrder(products, orderPrice, that.deliveryInfo);
+      }
+    },
+    postOrder(products, orderPrice, deliveryInfo) {
+      axios
+        .post("https://prodigy-rbk.herokuapp.com/api/orders/order", {
+          products,
+          orderPrice,
+          deliveryInfo
+        })
+        .then(response => {
+          this.resetStates();
+          this.successNotif = true;
+        });
     },
     deleteProduct(index) {
       this.REMOVE_FROM_CART(index);
@@ -357,7 +421,7 @@ export default {
         this.products[index].selectedSize = product.selectedSize;
         this.products[index].selectedColor = product.selectedColor;
         this.products[index].selectedQuantity = product.selectedQuantity;
-        promises.push(axios.get(`https://prodigy-rbk.herokuapp.com/api/products/${productId}`));
+        promises.push(axios.get(`http://localhost:3000/api/products/${productId}`));
       });
 
       await axios
@@ -365,6 +429,7 @@ export default {
         .then(results => {
           results.forEach((response, index) => {
             this.products[index].productId = response.data;
+            this.checkAvailability(this.products[index], index);
           });
         })
         .then(() => {
@@ -390,12 +455,9 @@ export default {
     let stripeScript = document.createElement("script");
     stripeScript.setAttribute("src", "https://checkout.stripe.com/checkout.js");
     document.head.appendChild(stripeScript);
-    console.log(this.$store.state.user.loggedIn);
     this.test();
   },
-  mounted() {
-    console.log(this.products);
-  },
+  mounted() {},
   updated() {
     this.cartPrice = this.products.reduce((acc, product) => {
       return acc + product.productId.price * product.selectedQuantity;
